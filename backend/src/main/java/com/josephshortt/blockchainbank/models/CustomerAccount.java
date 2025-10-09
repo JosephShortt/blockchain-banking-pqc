@@ -1,9 +1,9 @@
 package com.josephshortt.blockchainbank.models;
 
-public class Customer {
+public class CustomerAccount {
     private String customerId,firstName,surname,email;
 
-    public Customer(String customerId, String firstName, String surname, String email) {
+    public CustomerAccount(String customerId, String firstName, String surname, String email) {
         this.customerId = customerId;
         this.firstName = firstName;
         this.surname = surname;
