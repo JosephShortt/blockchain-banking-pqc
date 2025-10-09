@@ -1,30 +1,34 @@
 
 import { useState } from 'react';
 import axios from 'axios';
+import { Navigate, useNavigate } from 'react-router-dom';
+
 function AccountCreation() {
 
     const [firstName, setFirstName] = useState("");
     const [surname, setSurname] = useState("");
-    const [customerId, setCustomerId] = useState("");
+    const [password,setPassword] = useState("");
     const [email, setEmail] = useState("");
-
+    
+    const navigate = useNavigate();
 
     async function handleSubmit(e) {
         e.preventDefault();
 
         try {
             const response = await axios.post('http://localhost:8080/api/accounts', {
-                customerId,
                 firstName,
                 surname,
-                email
+                email,
+                password
             }, {
                 headers: {
                     'Content-Type': 'application/json'
                 }
             }
             )
-            alert(`Account created for ${response.data.email}`)
+            alert(`Account created for ${response.data.firstName}`)
+            navigate('/');
         }
         catch(error){
             console.error("Error creating account",error);
@@ -39,15 +43,7 @@ function AccountCreation() {
             <h1>Account Creation</h1>
 
             <form onSubmit={handleSubmit}>
-                <label>Enter your customer ID:
-                    <input
-                        type="text"
-                        value={customerId}
-                        onChange={(e) => setCustomerId(e.target.value)}
-                    />
-
-                </label>
-
+                
                 <label>Enter your first name:
                     <input
                         type="text"
@@ -56,6 +52,7 @@ function AccountCreation() {
                     />
 
                 </label>
+                <br />
 
                 <label>Enter your surname:
                     <input
@@ -65,6 +62,7 @@ function AccountCreation() {
                     />
 
                 </label>
+                <br />
 
                 <label>Enter your email:
                     <input
@@ -72,8 +70,17 @@ function AccountCreation() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                     />
-
                 </label>
+                <br />
+
+                 <label>Enter your Password:
+                    <input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+                </label>
+                <br />
 
                 <input type="submit" />
             </form>
