@@ -1,6 +1,5 @@
 
 import { useState } from 'react';
-import { createRoot } from 'react-dom/client';
 import axios from 'axios';
 function AccountCreation() {
 
