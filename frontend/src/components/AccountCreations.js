@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { createRoot } from 'react-dom/client';
-
+import axios from 'axios';
 function AccountCreation() {
 
     const [firstName, setFirstName] = useState("");
@@ -10,18 +10,38 @@ function AccountCreation() {
     const [email, setEmail] = useState("");
 
 
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
         e.preventDefault();
-        alert(firstName);
 
+        try {
+            const response = await axios.post('http://localhost:8080/api/accounts', {
+                customerId,
+                firstName,
+                surname,
+                email
+            }, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
+            )
+            alert(`Account created for ${response.data.email}`)
+        }
+        catch(error){
+            console.error("Error creating account",error);
+            alert("Faled to create account")
+        }
+       
     }
+
+
     return (
         <div>
             <h1>Account Creation</h1>
 
             <form onSubmit={handleSubmit}>
                 <label>Enter your customer ID:
-                    <input 
+                    <input
                         type="text"
                         value={customerId}
                         onChange={(e) => setCustomerId(e.target.value)}
@@ -30,7 +50,7 @@ function AccountCreation() {
                 </label>
 
                 <label>Enter your first name:
-                    <input 
+                    <input
                         type="text"
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
@@ -39,7 +59,7 @@ function AccountCreation() {
                 </label>
 
                 <label>Enter your surname:
-                    <input 
+                    <input
                         type="text"
                         value={surname}
                         onChange={(e) => setSurname(e.target.value)}
@@ -48,7 +68,7 @@ function AccountCreation() {
                 </label>
 
                 <label>Enter your email:
-                    <input 
+                    <input
                         type="text"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
