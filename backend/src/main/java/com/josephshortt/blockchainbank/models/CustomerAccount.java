@@ -1,13 +1,14 @@
 package com.josephshortt.blockchainbank.models;
 
 public class CustomerAccount {
-    private String customerId,firstName,surname,email;
+    private String customerId,firstName,surname,email,password;
 
-    public CustomerAccount(String customerId, String firstName, String surname, String email) {
+    public CustomerAccount(String customerId, String firstName, String surname, String email,String password) {
         this.customerId = customerId;
         this.firstName = firstName;
         this.surname = surname;
         this.email = email;
+        this.password=password;
     }
 
     public String getCustomerId() {
@@ -40,5 +41,13 @@ public class CustomerAccount {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
