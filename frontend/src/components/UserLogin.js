@@ -7,7 +7,10 @@ function UserLogin() {
     const [password, setPassword] = useState("");
     const [userData, setUserData] = useState(null);
     const [accountData, setAccountData] = useState(null);
+    const [amount, setAmount] = useState();
     const navigate = useNavigate();
+
+
 
     async function handleSubmit(e) {
         e.preventDefault()
@@ -31,6 +34,46 @@ function UserLogin() {
             }
         }
     }
+
+    async function handleAddFunds() {
+        try {
+            setAccountData(prev => ({
+                ...prev,
+                balance: prev.balance + 10.00
+            }));
+
+            const response = await axios.post('http://localhost:8080/api/accounts/login/add-funds',
+                accountData
+            )
+            console.log("Funds Added Successfully:", response.data);
+
+        } catch (error) {
+            console.error("Error adding funds:", error);
+        }
+    }
+
+    async function handleAddFundsInput(e) {
+        e.preventDefault()
+        try {
+            setAccountData(prev => ({
+                ...prev,
+                balance: prev.balance + parseFloat(amount)
+            }));
+
+            const response = await axios.post('http://localhost:8080/api/accounts/login/add-funds-input', {
+                accountData,
+                amount
+                
+            }
+
+            )
+            console.log("Funds Added Successfully through inout :", response.data);
+
+        } catch (error) {
+            console.error("Error adding funds:", error);
+        }
+    }
+
 
     return (
         <div>
@@ -71,6 +114,9 @@ function UserLogin() {
                     <p>Account Type: {accountData.accountType}</p>
                     <p>Balance: {accountData.balance}</p>
 
+                    <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Enter amount" />
+                    <button type="button"
+                        onClick={handleAddFundsInput} style={{ padding: '5px 10px' }}>Add</button>
                 </div>
             )}
         </div>
