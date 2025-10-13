@@ -24,7 +24,7 @@ function UserLogin() {
             setUserData(response.data.customer);
             setAccountData(response.data.bankAccount)
             console.log("Login successful:", response.data);
-
+            navigate('/')
 
         } catch (error) {
             if (error.response && error.response.status === 401) {
@@ -35,22 +35,6 @@ function UserLogin() {
         }
     }
 
-    async function handleAddFunds() {
-        try {
-            setAccountData(prev => ({
-                ...prev,
-                balance: prev.balance + 10.00
-            }));
-
-            const response = await axios.post('http://localhost:8080/api/accounts/login/add-funds',
-                accountData
-            )
-            console.log("Funds Added Successfully:", response.data);
-
-        } catch (error) {
-            console.error("Error adding funds:", error);
-        }
-    }
 
     async function handleAddFundsInput(e) {
         e.preventDefault()
