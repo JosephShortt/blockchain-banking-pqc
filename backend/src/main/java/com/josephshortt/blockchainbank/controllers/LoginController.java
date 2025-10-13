@@ -46,6 +46,19 @@ public class LoginController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/add-funds-input")
+    public DefaultBankAccount addFunds(@RequestBody DefaultBankAccount defaultBankAccount,double amount){
+        for (DefaultBankAccount bank : defaultBankAccounts) {
+            if (bank.getCustomerId().equals(defaultBankAccount.getCustomerId())) {
+                bank.setBalance(bank.getBalance() + amount);
+                System.out.println("New balance = " + bank.getBalance());
+                return bank;
+            }
+        }
+        return null;
+
+    }
+
 
 
 }
