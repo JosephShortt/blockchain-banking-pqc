@@ -7,7 +7,7 @@ function UserLogin() {
     const [password, setPassword] = useState("");
     const [userData, setUserData] = useState(null);
     const [accountData, setAccountData] = useState(null);
-    const [amount, setAmount] = useState();
+    const [amount, setAmount] = useState(0);
     const navigate = useNavigate();
 
 
@@ -60,11 +60,10 @@ function UserLogin() {
                 balance: prev.balance + parseFloat(amount)
             }));
 
-            const response = await axios.post('http://localhost:8080/api/accounts/login/add-funds-input', {
-                accountData,
+            const response = await axios.post('http://localhost:8080/api/accounts/login/add-funds-input', 
+                {account: accountData,
                 amount
-                
-            }
+                }
 
             )
             console.log("Funds Added Successfully through inout :", response.data);

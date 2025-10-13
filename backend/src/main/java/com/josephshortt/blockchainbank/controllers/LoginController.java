@@ -1,5 +1,6 @@
 package com.josephshortt.blockchainbank.controllers;
 
+import com.josephshortt.blockchainbank.models.AddFundsRequest;
 import com.josephshortt.blockchainbank.models.CustomerAccount;
 import com.josephshortt.blockchainbank.models.DefaultBankAccount;
 import com.josephshortt.blockchainbank.models.LoginResponse;
@@ -18,6 +19,9 @@ import static com.josephshortt.blockchainbank.controllers.CustomerAccountControl
 @CrossOrigin(origins = "http://localhost:3000")
 
 public class LoginController {
+
+
+
     @PostMapping
     public ResponseEntity validateLogin(@RequestBody CustomerAccount loginAttempt){
 
@@ -47,8 +51,13 @@ public class LoginController {
     }
 
     @PostMapping("/add-funds-input")
-    public DefaultBankAccount addFunds(@RequestBody DefaultBankAccount defaultBankAccount,double amount){
+    public DefaultBankAccount addFunds(@RequestBody AddFundsRequest request){
+
+        DefaultBankAccount defaultBankAccount = request.getAccount();
+        double amount = request.getAmount();
+
         for (DefaultBankAccount bank : defaultBankAccounts) {
+
             if (bank.getCustomerId().equals(defaultBankAccount.getCustomerId())) {
                 bank.setBalance(bank.getBalance() + amount);
                 System.out.println("New balance = " + bank.getBalance());
