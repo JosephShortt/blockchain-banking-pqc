@@ -11,7 +11,7 @@ import static com.josephshortt.blockchainbank.controllers.CustomerAccountControl
 @CrossOrigin(origins = "http://localhost:3000")
 
 public class TransactionController {
-    
+
     @PostMapping
     public DefaultBankAccount SendMoney(@RequestBody AddFundsRequest request){
 
@@ -21,7 +21,7 @@ public class TransactionController {
 
         for (DefaultBankAccount bank : defaultBankAccounts) {
 
-            if (bank.getCustomerId().equals(defaultBankAccount.getCustomerId())) {
+            if (bank.getIban().equals(request.getIban())) {
                 bank.setBalance(bank.getBalance() + amount);
                 System.out.println("New balance = " + bank.getBalance());
                 return bank;
