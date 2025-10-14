@@ -23,17 +23,18 @@ public class CustomerAccountController {
 
         for(CustomerAccount account : accounts){
             if(customerAccount.getEmail().equals(account.getEmail())){
-                return ResponseEntity.status(401).build();
+                return ResponseEntity.status(401) .body("Email is already in use");
             }
         }
 
 
         String generatedCustomerId = "c"+ (accounts.size() + 1);
         customerAccount.setCustomerId(generatedCustomerId);
-
+        String generatedIban = "IBAN"+customerAccount.getCustomerId();
         DefaultBankAccount defaultBankAccount = new DefaultBankAccount(
                 customerAccount.getCustomerId(),
                 "A"+customerAccount.getCustomerId(),
+                generatedIban,
                 AccountType.CURRENT,
                 0);
 
