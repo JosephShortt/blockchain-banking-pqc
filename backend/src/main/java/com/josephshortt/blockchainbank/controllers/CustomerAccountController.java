@@ -2,6 +2,8 @@ package com.josephshortt.blockchainbank.controllers;
 
 import com.josephshortt.blockchainbank.models.AccountType;
 import com.josephshortt.blockchainbank.models.DefaultBankAccount;
+import com.josephshortt.blockchainbank.models.LoginResponse;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.josephshortt.blockchainbank.models.CustomerAccount;
 
@@ -17,7 +19,15 @@ public class CustomerAccountController {
     public static final List<DefaultBankAccount> defaultBankAccounts = new ArrayList<>();
 
     @PostMapping
-    public CustomerAccount createAccount(@RequestBody CustomerAccount customerAccount) {
+    public ResponseEntity<Object> createAccount(@RequestBody CustomerAccount customerAccount) {
+
+        for(CustomerAccount account : accounts){
+            if(customerAccount.getEmail().equals(account.getEmail())){
+                return ResponseEntity.status(401).build();
+            }
+        }
+
+
         String generatedCustomerId = "c"+ (accounts.size() + 1);
         customerAccount.setCustomerId(generatedCustomerId);
 
@@ -31,7 +41,10 @@ public class CustomerAccountController {
         defaultBankAccounts.add(defaultBankAccount);
         System.out.println("Created customer: " + customerAccount.getFirstName());
 
-        return customerAccount;
+
+        return ResponseEntity.ok(customerAccount);
+
+
     }
 
     @GetMapping
