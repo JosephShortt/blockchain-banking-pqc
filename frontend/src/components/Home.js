@@ -20,11 +20,12 @@ function Home() {
       const response = await axios.post('http://localhost:8080/api/accounts/transaction',
         {
           account: accountData,
-          amount
+          amount,
+          iban
         }
 
       )
-      console.log("Funds Added Successfully through inout :", response.data);
+      console.log("Transaction successful:", response.data);
       localStorage.setItem("accountData", JSON.stringify(response.data));
 
 
