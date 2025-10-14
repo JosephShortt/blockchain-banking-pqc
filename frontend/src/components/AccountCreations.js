@@ -2,14 +2,15 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { Navigate, useNavigate } from 'react-router-dom';
-
+import { useUser } from '../contexts/UserContext';
 function AccountCreation() {
 
     const [firstName, setFirstName] = useState("");
     const [surname, setSurname] = useState("");
-    const [password,setPassword] = useState("");
+    const [password, setPassword] = useState("");
     const [email, setEmail] = useState("");
-    
+    const { setUserData, setAccountData } = useUser();
+
     const navigate = useNavigate();
 
     async function handleSubmit(e) {
@@ -27,14 +28,37 @@ function AccountCreation() {
                 }
             }
             )
+
             alert(`Account created for ${response.data.firstName}`)
-            navigate('/');
+
+            try {
+            const response = await axios.post('http://localhost:8080/api/accounts/login', {
+                email,
+                password
+            });
+
+            // 200 OK, login successful
+            setUserData(response.data.customer);
+            setAccountData(response.data.bankAccount)
+
+            localStorage.setItem("userData", JSON.stringify(response.data.customer));
+            localStorage.setItem("accountData", JSON.stringify(response.data.bankAccount));
+
+            navigate('/')
+
+        } catch (error) {
+
+            console.error("Error creaiing account:", error);
+
         }
-        catch(error){
-            console.error("Error creating account",error);
+        }
+        catch (error) {
+            console.error("Error creating account", error);
             alert("Faled to create account")
         }
-       
+
+        
+
     }
 
 
@@ -43,7 +67,7 @@ function AccountCreation() {
             <h1>Account Creation</h1>
 
             <form onSubmit={handleSubmit}>
-                
+
                 <label>Enter your first name:
                     <input
                         type="text"
@@ -73,7 +97,7 @@ function AccountCreation() {
                 </label>
                 <br />
 
-                 <label>Enter your Password:
+                <label>Enter your Password:
                     <input
                         type="password"
                         value={password}
