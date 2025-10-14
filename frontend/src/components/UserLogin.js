@@ -8,10 +8,7 @@ function UserLogin() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const { setUserData, setAccountData } = useUser();
-    const [amount, setAmount] = useState(0);
     const navigate = useNavigate();
-
-
 
 
     async function handleSubmit(e) {
@@ -41,28 +38,7 @@ function UserLogin() {
         }
     }
 
-    /*
-    async function handleAddFundsInput(e) {
-        e.preventDefault()
-        try {
-            setAccountData(prev => ({
-                ...prev,
-                balance: prev.balance + parseFloat(amount)
-            }));
-
-            const response = await axios.post('http://localhost:8080/api/accounts/login/add-funds-input', 
-                {account: accountData,
-                amount
-                }
-
-            )
-            console.log("Funds Added Successfully through inout :", response.data);
-
-        } catch (error) {
-            console.error("Error adding funds:", error);
-        }
-    }
-    */
+    
     return (
 
         <div>

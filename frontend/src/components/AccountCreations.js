@@ -32,32 +32,32 @@ function AccountCreation() {
             alert(`Account created for ${response.data.firstName}`)
 
             try {
-            const response = await axios.post('http://localhost:8080/api/accounts/login', {
-                email,
-                password
-            });
+                const response = await axios.post('http://localhost:8080/api/accounts/login', {
+                    email,
+                    password
+                });
 
-            // 200 OK, login successful
-            setUserData(response.data.customer);
-            setAccountData(response.data.bankAccount)
+                // 200 OK, login successful
+                setUserData(response.data.customer);
+                setAccountData(response.data.bankAccount)
 
-            localStorage.setItem("userData", JSON.stringify(response.data.customer));
-            localStorage.setItem("accountData", JSON.stringify(response.data.bankAccount));
+                localStorage.setItem("userData", JSON.stringify(response.data.customer));
+                localStorage.setItem("accountData", JSON.stringify(response.data.bankAccount));
 
-            navigate('/')
+                navigate('/')
 
-        } catch (error) {
+            } catch (error) {
 
-            console.error("Error creaiing account:", error);
+                console.error("Error creaiing account:", error);
 
-        }
+            }
         }
         catch (error) {
             console.error("Error creating account", error);
             alert("Faled to create account")
         }
 
-        
+
 
     }
 
