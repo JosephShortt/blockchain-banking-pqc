@@ -4,7 +4,6 @@ import AccountCreation from './components/AccountCreations';
 import UserLogin from './components/UserLogin.js';
 import Home from './components/Home';
 import { useNavigate } from 'react-router-dom';
-
 function Navigation() {
   const navigate = useNavigate();
 
@@ -24,7 +23,7 @@ function Navigation() {
     }}>
 
        <div>
-        <button onClick={() => navigate('/')} style={{ padding: '5px 10px' }}>Home</button>
+        <button style={{border:'none', padding: 0,}}> <img src="/logo.png"  alt="home" onClick={() => navigate('/')} style={{  width: '50px',  height: 'auto', cursor:'pointer'}}/></button>
       </div>
 
       <div style={{ textAlign: 'center', flexGrow: 1 }}>
