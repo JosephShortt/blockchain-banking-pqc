@@ -20,10 +20,10 @@ function UserLogin() {
             });
 
             // 200 OK, login successful
-            setUserData(response.data.customer);
+            setUserData(response.data.accountResponse);
             setAccountData(response.data.bankAccount)
             
-            localStorage.setItem("userData", JSON.stringify(response.data.customer));
+            localStorage.setItem("userData", JSON.stringify(response.data.accountResponse));
             localStorage.setItem("accountData", JSON.stringify(response.data.bankAccount));
             
             console.log("Login successful:", response.data);

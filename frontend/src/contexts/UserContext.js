@@ -19,7 +19,6 @@ export function UserProvider({ children }) {
   );
 }
 
-// custom hook for convenience
 export function useUser() {
   return useContext(UserContext);
 }
