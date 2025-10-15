@@ -1,20 +1,19 @@
 package com.josephshortt.blockchainbank.models;
 
 public class LoginResponse {
-    private CustomerAccount customer;
     private DefaultBankAccount bankAccount;
-
-    public LoginResponse(CustomerAccount customer, DefaultBankAccount bankAccount) {
-        this.customer = customer;
+    private AccountResponse accountResponse;
+    public LoginResponse(AccountResponse accountResponse, DefaultBankAccount bankAccount) {
         this.bankAccount = bankAccount;
+        this.accountResponse = accountResponse;
     }
 
-    public CustomerAccount getCustomer() {
-        return customer;
+    public AccountResponse getAccountResponse() {
+        return accountResponse;
     }
 
-    public void setCustomer(CustomerAccount customer) {
-        this.customer = customer;
+    public void setAccountResponse(AccountResponse accountResponse) {
+        this.accountResponse = accountResponse;
     }
 
     public DefaultBankAccount getBankAccount() {
@@ -24,4 +23,6 @@ public class LoginResponse {
     public void setBankAccount(DefaultBankAccount bankAccount) {
         this.bankAccount = bankAccount;
     }
+
+
 }

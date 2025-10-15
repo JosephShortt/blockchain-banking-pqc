@@ -12,7 +12,7 @@ function Home() {
   if (!userData) return <p>Please log in.</p>;
 
 
-  async function handleAddFundsInput(e) {
+  async function handleSendFunds(e) {
     e.preventDefault()
 
     if (!iban || iban.trim() === "") {
@@ -24,6 +24,7 @@ function Home() {
       alert("Please enter a valid amount greater than zero.");
       return;
     }
+
 
     try {
       const response = await axios.post('http://localhost:8080/api/accounts/transaction',
@@ -43,7 +44,7 @@ function Home() {
       localStorage.setItem("accountData", JSON.stringify(response.data));
 
     } catch (error) {
-      console.error("Error adding funds:", error);
+      console.error("Error sending funds:", error);
     }
   }
 
@@ -59,12 +60,12 @@ function Home() {
           style: 'currency',
           currency: 'EUR'
         }).format(accountData.balance)}</p>
-        
+
         <input type="text" value={iban} onChange={(e) => setIban(e.target.value)} placeholder="Enter Iban of account to send to" />
 
         <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Enter amount" />
         <button type="button"
-          onClick={handleAddFundsInput} style={{ padding: '5px 10px' }}>Add</button>
+          onClick={handleSendFunds} style={{ padding: '5px 10px' }}>Add</button>
       </div>
 
     </div>

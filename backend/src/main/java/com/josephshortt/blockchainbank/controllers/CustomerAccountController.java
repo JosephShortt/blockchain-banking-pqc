@@ -1,13 +1,11 @@
 package com.josephshortt.blockchainbank.controllers;
 
-import com.josephshortt.blockchainbank.models.AccountType;
-import com.josephshortt.blockchainbank.models.DefaultBankAccount;
-import com.josephshortt.blockchainbank.models.LoginResponse;
+import com.josephshortt.blockchainbank.models.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.josephshortt.blockchainbank.models.CustomerAccount;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -27,10 +25,19 @@ public class CustomerAccountController {
             }
         }
 
+        //Hash the passed password
+        HashPassword hash = new HashPassword(customerAccount.getPassword());
+        String hashedPassword = hash.digestAndEncode(customerAccount.getPassword());
+        customerAccount.setPassword(hashedPassword);
 
+        //Set customer ID
         String generatedCustomerId = "c"+ (accounts.size() + 1);
         customerAccount.setCustomerId(generatedCustomerId);
+
+        //Generate Iban with id
         String generatedIban = "IBAN"+customerAccount.getCustomerId();
+
+        //Create default bank account for created account
         DefaultBankAccount defaultBankAccount = new DefaultBankAccount(
                 customerAccount.getCustomerId(),
                 "A"+customerAccount.getCustomerId(),
