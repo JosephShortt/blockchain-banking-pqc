@@ -1,6 +1,6 @@
 package com.josephshortt.blockchainbank.models;
 
-public class AddFundsRequest {
+public class TransactionRequest {
     private DefaultBankAccount account;
     private double amount;
     private String iban;

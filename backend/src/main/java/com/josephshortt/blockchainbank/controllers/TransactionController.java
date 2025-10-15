@@ -1,6 +1,6 @@
 package com.josephshortt.blockchainbank.controllers;
 
-import com.josephshortt.blockchainbank.models.AddFundsRequest;
+import com.josephshortt.blockchainbank.models.TransactionRequest;
 import com.josephshortt.blockchainbank.models.DefaultBankAccount;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,7 +13,7 @@ import static com.josephshortt.blockchainbank.controllers.CustomerAccountControl
 public class TransactionController {
 
     @PostMapping
-    public DefaultBankAccount SendMoney(@RequestBody AddFundsRequest request){
+    public DefaultBankAccount SendMoney(@RequestBody TransactionRequest request){
 
         DefaultBankAccount defaultBankAccount = request.getAccount();
         double amount = request.getAmount();

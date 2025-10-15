@@ -2,7 +2,6 @@ import { useState } from "react";
 import axios from "axios";
 import { useEffect } from "react";
 import { useUser } from "../contexts/UserContext";
-
 function Home() {
 
   const { userData, accountData, setAccountData } = useUser();
@@ -15,8 +14,18 @@ function Home() {
 
   async function handleAddFundsInput(e) {
     e.preventDefault()
-    try {
 
+    if (!iban || iban.trim() === "") {
+      alert("Please enter an IBAN before making a transaction.");
+      return;
+    }
+
+    if (amount <= 0) {
+      alert("Please enter a valid amount greater than zero.");
+      return;
+    }
+
+    try {
       const response = await axios.post('http://localhost:8080/api/accounts/transaction',
         {
           account: accountData,
@@ -25,9 +34,13 @@ function Home() {
         }
 
       )
+
+      alert("Transaction Complete")
+
+      window.location.reload();
+
       console.log("Transaction successful:", response.data);
       localStorage.setItem("accountData", JSON.stringify(response.data));
-
 
     } catch (error) {
       console.error("Error adding funds:", error);
@@ -41,8 +54,12 @@ function Home() {
         <p>Email: {userData.email}</p>
         <p>IBAN: {accountData.iban}</p>
         <p>Account ID: {accountData.accountId}</p>
-        <p>Balance: {accountData.balance}</p>
 
+        <p>Balance: {new Intl.NumberFormat('en-IE', {
+          style: 'currency',
+          currency: 'EUR'
+        }).format(accountData.balance)}</p>
+        
         <input type="text" value={iban} onChange={(e) => setIban(e.target.value)} placeholder="Enter Iban of account to send to" />
 
         <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Enter amount" />
