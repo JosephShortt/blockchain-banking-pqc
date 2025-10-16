@@ -51,21 +51,24 @@ function Home() {
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
       <div>
-        <h2>Welcome, {userData.firstName}!</h2>
-        <p>Email: {userData.email}</p>
-        <p>IBAN: {accountData.iban}</p>
-        <p>Account ID: {accountData.accountId}</p>
+        <div style={{border: '1px solid #ccc', borderRadius: '8px', padding: '20px', marginTop:'10px',marginBottom: '20px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'}}>
+          <h2>Welcome, {userData.firstName}!</h2>
+          <p>Email: {userData.email}</p>
+          <p>IBAN: {accountData.iban}</p>
+          <p>Account ID: {accountData.accountId}</p>
 
-        <p>Balance: {new Intl.NumberFormat('en-IE', {
-          style: 'currency',
-          currency: 'EUR'
-        }).format(accountData.balance)}</p>
+          <p>Balance: {new Intl.NumberFormat('en-IE', {
+            style: 'currency',
+            currency: 'EUR'
+          }).format(accountData.balance)}</p>
+        </div>
+
 
         <input type="text" value={iban} onChange={(e) => setIban(e.target.value)} placeholder="Enter Iban of account to send to" />
 
         <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Enter amount" />
         <button type="button"
-          onClick={handleSendFunds} style={{ padding: '5px 10px' }}>Add</button>
+          onClick={handleSendFunds} style={{ padding: '5px 10px' }}>Send</button>
       </div>
 
     </div>
