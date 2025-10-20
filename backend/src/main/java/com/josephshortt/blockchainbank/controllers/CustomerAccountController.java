@@ -19,6 +19,12 @@ public class CustomerAccountController {
     @PostMapping
     public ResponseEntity<Object> createAccount(@RequestBody CustomerAccount customerAccount) {
 
+        if(customerAccount.getFirstName().isEmpty() || customerAccount.getSurname().isEmpty()
+                || customerAccount.getEmail().isEmpty() || customerAccount.getPassword().isEmpty()){
+            return ResponseEntity.status(401).body("Please fill in all fields!!");
+        }
+
+
         for(CustomerAccount account : accounts){
             if(customerAccount.getEmail().equals(account.getEmail())){
                 return ResponseEntity.status(401) .body("Email is already in use");
