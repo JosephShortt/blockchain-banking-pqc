@@ -1,5 +1,4 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import AccountCreation from './components/AccountCreations';
 import UserLogin from './components/UserLogin.js';
 import Home from './components/Home';
