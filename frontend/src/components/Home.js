@@ -3,7 +3,7 @@ import axios from "axios";
 import { useUser } from "../contexts/UserContext";
 function Home() {
 
-  const { userData, accountData, setAccountData } = useUser();
+  const { userData, accountData } = useUser();
   const [amount, setAmount] = useState(0);
   const [iban, setIban] = useState("");
 
