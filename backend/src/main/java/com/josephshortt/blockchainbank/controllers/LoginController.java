@@ -38,13 +38,13 @@ public class LoginController {
             }
         }
 
-        if (accountResponse.getCustomerId() == null) {
+        if (accountResponse.getCustomerId()==0) {
             return ResponseEntity.status(401).build(); // no valid user found
         }
 
         DefaultBankAccount matchedBank = null;
         for (DefaultBankAccount bank : defaultBankAccounts) {
-            if (bank.getCustomerId().equals(accountResponse.getCustomerId())) {
+            if (bank.getCustomerId() == (accountResponse.getCustomerId())) {
                 matchedBank = bank;
                 break;
             }
