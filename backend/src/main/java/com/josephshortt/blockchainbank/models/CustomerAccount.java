@@ -14,6 +14,9 @@ public class CustomerAccount {
 
     private String firstName,surname,email,password;
 
+    public CustomerAccount() {
+    }
+
     public CustomerAccount(Long customerId, String firstName, String surname, String email,String password) {
         this.customerId = customerId;
         this.firstName = firstName;
