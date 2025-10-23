@@ -1,9 +1,20 @@
 package com.josephshortt.blockchainbank.models;
 
-public class CustomerAccount {
-    private String customerId,firstName,surname,email,password;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 
-    public CustomerAccount(String customerId, String firstName, String surname, String email,String password) {
+@Entity
+public class CustomerAccount {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long customerId;
+
+    private String firstName,surname,email,password;
+
+    public CustomerAccount(long customerId, String firstName, String surname, String email,String password) {
         this.customerId = customerId;
         this.firstName = firstName;
         this.surname = surname;
@@ -11,11 +22,11 @@ public class CustomerAccount {
         this.password=password;
     }
 
-    public String getCustomerId() {
+    public long getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(String customerId) {
+    public void setCustomerId(long customerId) {
         this.customerId = customerId;
     }
 
