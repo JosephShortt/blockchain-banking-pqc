@@ -3,7 +3,12 @@ package com.josephshortt.blockchainbank.controllers;
 import com.josephshortt.blockchainbank.models.LoadBankAccounts;
 import com.josephshortt.blockchainbank.models.TransactionRequest;
 import com.josephshortt.blockchainbank.models.DefaultBankAccount;
+import com.josephshortt.blockchainbank.repository.BankAccountRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 
 @RestController
@@ -11,23 +16,25 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "http://localhost:3000")
 
 public class TransactionController {
-
+    @Autowired
+    private BankAccountRepository bankAccountRepository;
     @PostMapping
-    public DefaultBankAccount SendMoney(@RequestBody TransactionRequest request){
+    public  ResponseEntity<?>  SendMoney(@RequestBody TransactionRequest request){
 
         DefaultBankAccount defaultBankAccount = request.getAccount();
         double amount = request.getAmount();
         String iban = request.getIban();
 
-        for (DefaultBankAccount bank : LoadBankAccounts.defaultBankAccounts) {
-
-            if (bank.getIban().equals(request.getIban())) {
-                bank.setBalance(bank.getBalance() + amount);
-                System.out.println("New balance = " + bank.getBalance());
-                return bank;
-            }
+        Optional<DefaultBankAccount> optionalAccount = bankAccountRepository.findByIban(iban);
+        if (optionalAccount.isEmpty()) {
+            return ResponseEntity.status(404).body("Account with IBAN " + iban + " not found");
         }
-        return request.getAccount();
+
+        DefaultBankAccount bankAccount = optionalAccount.get();
+        bankAccount.setBalance(bankAccount.getBalance() + amount);
+        bankAccountRepository.save(bankAccount); 
+
+        return ResponseEntity.ok(bankAccount);
 
     }
 }
