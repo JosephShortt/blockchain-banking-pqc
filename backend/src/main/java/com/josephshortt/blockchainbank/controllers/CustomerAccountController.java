@@ -36,9 +36,12 @@ public class CustomerAccountController {
         String hashedPassword = hash.digestAndEncode(customerAccount.getPassword());
         customerAccount.setPassword(hashedPassword);
 
-        //Set customer ID
+        /*
+         //Set customer ID
         String generatedCustomerId = "c"+ (accounts.size() + 1);
         customerAccount.setCustomerId(generatedCustomerId);
+         */
+
 
         //Generate Iban with id
         String generatedIban = "IBAN"+customerAccount.getCustomerId();
