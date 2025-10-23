@@ -1,21 +1,21 @@
 package com.josephshortt.blockchainbank.models;
 
 public class AccountResponse {
-    private long customerId;
+    private Long customerId;
     private String firstName,surname,email;
 
-    public AccountResponse(long customerId, String firstName, String surname, String email) {
+    public AccountResponse(Long customerId, String firstName, String surname, String email) {
         this.customerId = customerId;
         this.firstName = firstName;
         this.surname = surname;
         this.email = email;
     }
 
-    public long getCustomerId() {
+    public Long getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(long customerId) {
+    public void setCustomerId(Long customerId) {
         this.customerId = customerId;
     }
 

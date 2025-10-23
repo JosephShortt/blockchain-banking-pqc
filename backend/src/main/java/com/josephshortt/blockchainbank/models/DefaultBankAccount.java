@@ -3,14 +3,14 @@ package com.josephshortt.blockchainbank.models;
 import static com.josephshortt.blockchainbank.models.AccountType.CURRENT;
 
 public class DefaultBankAccount {
-    private long customerId;
+    private Long customerId;
     private String accountId,iban;
     private AccountType accountType;
     private double balance;
 
 
 
-    public DefaultBankAccount(long customerId, String accountId, String iban, AccountType accountType, double balance){
+    public DefaultBankAccount(Long customerId, String accountId, String iban, AccountType accountType, double balance){
         this.customerId=customerId;
         this.accountId=accountId;
         this.iban = iban;
@@ -18,11 +18,11 @@ public class DefaultBankAccount {
         this.balance=balance;
     }
 
-    public long getCustomerId() {
+    public Long getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(long customerId) {
+    public void setCustomerId(Long customerId) {
         this.customerId = customerId;
     }
 

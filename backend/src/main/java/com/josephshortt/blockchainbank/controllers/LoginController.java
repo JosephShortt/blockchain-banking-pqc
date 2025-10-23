@@ -44,7 +44,7 @@ public class LoginController {
 
         DefaultBankAccount matchedBank = null;
         for (DefaultBankAccount bank : defaultBankAccounts) {
-            if (bank.getCustomerId() == (accountResponse.getCustomerId())) {
+            if (bank.getCustomerId().equals(accountResponse.getCustomerId())) {
                 matchedBank = bank;
                 break;
             }

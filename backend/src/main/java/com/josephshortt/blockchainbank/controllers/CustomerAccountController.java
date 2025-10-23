@@ -48,6 +48,7 @@ public class CustomerAccountController {
         customerAccount.setCustomerId(generatedCustomerId);
          */
 
+        customerRepository.save(customerAccount);
 
         //Generate Iban with id
         String generatedIban = "IBAN"+customerAccount.getCustomerId();
@@ -62,7 +63,7 @@ public class CustomerAccountController {
 
         accounts.add(customerAccount);
         defaultBankAccounts.add(defaultBankAccount);
-        customerRepository.save(customerAccount);
+
         System.out.println("Created customer: " + customerAccount.getFirstName());
 
 
