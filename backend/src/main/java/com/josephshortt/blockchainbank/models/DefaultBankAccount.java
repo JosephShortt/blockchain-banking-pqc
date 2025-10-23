@@ -1,14 +1,18 @@
 package com.josephshortt.blockchainbank.models;
 
-import static com.josephshortt.blockchainbank.models.AccountType.CURRENT;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 
+import static com.josephshortt.blockchainbank.models.AccountType.CURRENT;
+@Entity
 public class DefaultBankAccount {
+    @Id
     private Long customerId;
     private String accountId,iban;
     private AccountType accountType;
     private double balance;
 
-
+    public DefaultBankAccount(){}
 
     public DefaultBankAccount(Long customerId, String accountId, String iban, AccountType accountType, double balance){
         this.customerId=customerId;

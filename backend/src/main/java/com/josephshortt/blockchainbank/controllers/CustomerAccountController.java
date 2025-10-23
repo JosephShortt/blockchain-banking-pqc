@@ -1,6 +1,7 @@
 package com.josephshortt.blockchainbank.controllers;
 
 import com.josephshortt.blockchainbank.models.*;
+import com.josephshortt.blockchainbank.repository.BankAccountRepository;
 import com.josephshortt.blockchainbank.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,12 +16,12 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:3000")
 public class CustomerAccountController {
 
-    public static final List<CustomerAccount> accounts = new ArrayList<>();
-    public static final List<DefaultBankAccount> defaultBankAccounts = new ArrayList<>();
 
     @Autowired
     private CustomerRepository customerRepository;
 
+    @Autowired
+    private BankAccountRepository bankAccountRepository;
 
     @PostMapping
     public ResponseEntity<Object> createAccount(@RequestBody CustomerAccount customerAccount) {
@@ -31,7 +32,7 @@ public class CustomerAccountController {
         }
 
 
-        for(CustomerAccount account : accounts){
+        for(CustomerAccount account : LoadCustomerAccounts.accounts){
             if(customerAccount.getEmail().equals(account.getEmail())){
                 return ResponseEntity.status(401) .body("Email is already in use");
             }
@@ -42,14 +43,8 @@ public class CustomerAccountController {
         String hashedPassword = hash.digestAndEncode(customerAccount.getPassword());
         customerAccount.setPassword(hashedPassword);
 
-        /*
-         //Set customer ID
-        String generatedCustomerId = "c"+ (accounts.size() + 1);
-        customerAccount.setCustomerId(generatedCustomerId);
-         */
-
         customerRepository.save(customerAccount);
-
+        LoadCustomerAccounts.accounts.add(customerAccount);
         //Generate Iban with id
         String generatedIban = "IBAN"+customerAccount.getCustomerId();
 
@@ -61,8 +56,8 @@ public class CustomerAccountController {
                 AccountType.CURRENT,
                 0);
 
-        accounts.add(customerAccount);
-        defaultBankAccounts.add(defaultBankAccount);
+        bankAccountRepository.save(defaultBankAccount);
+        LoadBankAccounts.defaultBankAccounts.add(defaultBankAccount);
 
         System.out.println("Created customer: " + customerAccount.getFirstName());
 
@@ -74,7 +69,7 @@ public class CustomerAccountController {
 
     @GetMapping
     public List<CustomerAccount> getAllAccounts() {
-        return accounts;
+        return LoadCustomerAccounts.accounts;
     }
 
 

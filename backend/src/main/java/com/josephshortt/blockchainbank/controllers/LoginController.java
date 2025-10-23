@@ -6,9 +6,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 
-import static com.josephshortt.blockchainbank.controllers.CustomerAccountController.accounts;
-import static com.josephshortt.blockchainbank.controllers.CustomerAccountController.defaultBankAccounts;
-
+import static com.josephshortt.blockchainbank.models.LoadBankAccounts.defaultBankAccounts;
+import static com.josephshortt.blockchainbank.models.LoadCustomerAccounts.accounts;
 @RestController
 @RequestMapping("/api/accounts/login")
 @CrossOrigin(origins = "http://localhost:3000")
@@ -38,7 +37,7 @@ public class LoginController {
             }
         }
 
-        if (accountResponse.getCustomerId()==0) {
+        if (accountResponse.getCustomerId()==null) {
             return ResponseEntity.status(401).build(); // no valid user found
         }
 
