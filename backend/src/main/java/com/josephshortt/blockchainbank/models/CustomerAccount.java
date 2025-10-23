@@ -10,11 +10,11 @@ public class CustomerAccount {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long customerId;
+    private Long customerId;
 
     private String firstName,surname,email,password;
 
-    public CustomerAccount(long customerId, String firstName, String surname, String email,String password) {
+    public CustomerAccount(Long customerId, String firstName, String surname, String email,String password) {
         this.customerId = customerId;
         this.firstName = firstName;
         this.surname = surname;
@@ -22,11 +22,11 @@ public class CustomerAccount {
         this.password=password;
     }
 
-    public long getCustomerId() {
+    public Long getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(long customerId) {
+    public void setCustomerId(Long customerId) {
         this.customerId = customerId;
     }
 
