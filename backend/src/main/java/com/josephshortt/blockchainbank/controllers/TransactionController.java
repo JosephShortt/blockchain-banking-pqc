@@ -32,7 +32,7 @@ public class TransactionController {
 
         DefaultBankAccount bankAccount = optionalAccount.get();
         bankAccount.setBalance(bankAccount.getBalance() + amount);
-        bankAccountRepository.save(bankAccount); 
+        bankAccountRepository.save(bankAccount);
 
         return ResponseEntity.ok(bankAccount);
 
