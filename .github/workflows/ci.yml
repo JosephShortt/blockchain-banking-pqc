@@ -36,3 +36,7 @@ jobs:
           cd frontend
           npm install
           npm run build
+
+      - name: Run backend tests
+        run: mvn -f backend/pom.xml test
+
