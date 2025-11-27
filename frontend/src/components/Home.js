@@ -1,5 +1,4 @@
 import { useState } from "react";
-import axios from "axios";
 import { useUser } from "../contexts/UserContext";
 import api from "../api";
 function Home() {
