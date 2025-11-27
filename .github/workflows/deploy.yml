@@ -24,7 +24,7 @@ jobs:
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Push Images
         run: |
@@ -39,8 +39,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            cd ~/app
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/bank-backend:latest
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/bank-frontend:latest
+            cd ~/app/blockchain-banking-pqc
+            docker compose pull
             docker compose down
             docker compose up -d
