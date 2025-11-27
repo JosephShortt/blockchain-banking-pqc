@@ -3,6 +3,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../contexts/UserContext';
+import api from '../api';
 function AccountCreation() {
 
     const [firstName, setFirstName] = useState("");
@@ -17,7 +18,7 @@ function AccountCreation() {
         e.preventDefault();
 
         try {
-            const response = await axios.post('http://localhost:8080/api/accounts', {
+            const response = await api.post('/api/accounts', {
                 firstName,
                 surname,
                 email,
@@ -39,7 +40,7 @@ function AccountCreation() {
         }
         
         try {
-            const response = await axios.post('http://localhost:8080/api/accounts/login', {
+            const response =  await api.post('/api/accounts/login', {
                 email,
                 password
             });
