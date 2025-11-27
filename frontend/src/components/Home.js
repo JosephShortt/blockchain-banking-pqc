@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useUser } from "../contexts/UserContext";
+import api from "../api";
 function Home() {
 
   const { userData, accountData } = useUser();
@@ -26,7 +27,7 @@ function Home() {
 
 
     try {
-      const response = await axios.post('http://localhost:8080/api/accounts/transaction',
+      const response = await api.post('/api/accounts/transaction',
         {
           account: accountData,
           amount,
