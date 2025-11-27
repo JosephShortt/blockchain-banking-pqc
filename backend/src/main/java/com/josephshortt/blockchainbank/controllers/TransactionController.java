@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/accounts/transaction")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://141.147.73.104")
 
 public class TransactionController {
     @Autowired
