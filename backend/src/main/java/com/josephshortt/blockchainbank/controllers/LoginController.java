@@ -10,7 +10,6 @@ import static com.josephshortt.blockchainbank.models.LoadBankAccounts.defaultBan
 import static com.josephshortt.blockchainbank.models.LoadCustomerAccounts.accounts;
 @RestController
 @RequestMapping("/api/accounts/login")
-@CrossOrigin(origins = "http://141.147.73.104")
 
 public class LoginController {
 
