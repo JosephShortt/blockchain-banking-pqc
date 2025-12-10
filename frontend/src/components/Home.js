@@ -68,6 +68,9 @@ function Home() {
         <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Enter amount" />
         <button type="button"
           onClick={handleSendFunds} style={{ padding: '5px 10px' }}>Send</button>
+
+
+        
       </div>
 
     </div>
