@@ -29,7 +29,7 @@ function Home() {
   }, [accountData]); // runs when accountData changes (e.g., after login)
 
   if (!userData) return <p>Please log in.</p>;
-  
+
   //Handle transactions 
   async function handleSendFunds(e) {
     e.preventDefault()
@@ -98,6 +98,7 @@ function Home() {
           {transactions.map((tx, idx) => (
             <li key={idx}>
               {tx.senderIban} → {tx.receiverIban}: {new Intl.NumberFormat('en-IE', { style: 'currency', currency: 'EUR' }).format(tx.amount)}
+              <span> ({new Date(tx.timestamp).toLocaleString()})</span>
             </li>
           ))}
         </ul>
