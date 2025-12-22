@@ -13,9 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/accounts")
-@CrossOrigin(origins = "http://141.147.73.104")
 public class CustomerAccountController {
-
 
     @Autowired
     private CustomerRepository customerRepository;
