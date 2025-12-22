@@ -1,10 +1,9 @@
-# blockchain-banking-pqc
-# PQC .....
+# Blockchain Banking PQC - Final Year Project
 
+## File Structure
 ```
 │   README.md
 │    
-
 ├───.github
 │   └───workflows
 │           ci.yml
