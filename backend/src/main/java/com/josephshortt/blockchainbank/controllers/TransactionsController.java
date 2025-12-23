@@ -27,10 +27,6 @@ public class TransactionsController {
         // find all transactions where the account is either sender or receiver
         List<Transaction> transactions = transactionRepository.findBySenderIbanOrReceiverIban(iban, iban);
 
-        if (transactions.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-
         return ResponseEntity.ok(transactions);
     }
 }
