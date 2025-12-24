@@ -68,6 +68,7 @@ function Home() {
 
     } catch (error) {
       console.error("Error sending funds:", error);
+      alert(error.response.data);
     }
   }
 
