@@ -39,24 +39,26 @@ public class TransactionController {
         DefaultBankAccount receiverAccount = optionalReceiver.get();
 
 
-
-        // Update balances
-        senderAccount.setBalance(senderAccount.getBalance() - amount);
-        receiverAccount.setBalance(receiverAccount.getBalance() + amount);
-
-
-        // Save changes to DB
-        bankAccountRepository.save(senderAccount);
-        bankAccountRepository.save(receiverAccount);
+        if(amount <= senderAccount.getBalance()){
+            // Update balances
+            senderAccount.setBalance(senderAccount.getBalance() - amount);
+            receiverAccount.setBalance(receiverAccount.getBalance() + amount);
 
 
-        // Record transaction
-        Transaction transaction = new Transaction(senderAccount.getIban(), receiverAccount.getIban(), amount, LocalDateTime.now());
-        transactionRepository.save(transaction);
+            // Save changes to DB
+            bankAccountRepository.save(senderAccount);
+            bankAccountRepository.save(receiverAccount);
 
 
-        return ResponseEntity.ok(senderAccount);
+            // Record transaction
+            Transaction transaction = new Transaction(senderAccount.getIban(), receiverAccount.getIban(), amount, LocalDateTime.now());
+            transactionRepository.save(transaction);
 
+
+            return ResponseEntity.ok(senderAccount);
+        }
+
+        return ResponseEntity.status(400).body("Insufficient Funds");
     }
 
 
