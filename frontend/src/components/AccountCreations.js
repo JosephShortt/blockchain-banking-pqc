@@ -35,7 +35,7 @@ function AccountCreation() {
         }
         catch (error) {
             console.error("Error creating account", error);
-            alert("Faled to create account")
+            alert(error.response.data);
         }
         
         try {
