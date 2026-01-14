@@ -33,9 +33,11 @@ public class TransactionController {
         String iban = request.getIban();
 
         Optional<DefaultBankAccount> optionalReceiver = bankAccountRepository.findByIban(iban);
+
         if (optionalReceiver.isEmpty()) {
             return ResponseEntity.status(404).body("Account with IBAN " + iban + " not found");
         }
+
         DefaultBankAccount receiverAccount = optionalReceiver.get();
 
 

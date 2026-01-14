@@ -21,7 +21,7 @@
             List<DefaultBankAccount> allAccounts = bankAccountRepository.findAll();
             defaultBankAccounts.clear();
             defaultBankAccounts.addAll(allAccounts);
-
+            System.out.println("********* **********");
             System.out.println("Loaded " + defaultBankAccounts.size() + " bank accounts from database.");
             for(DefaultBankAccount account : defaultBankAccounts){
                 System.out.println("ID: " + account.getCustomerId() + " Balance: " + account.getBalance());
