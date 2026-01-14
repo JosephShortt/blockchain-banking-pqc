@@ -1,10 +1,13 @@
 package com.josephshortt.blockchainbank.controllers;
 
 import com.josephshortt.blockchainbank.models.*;
+import com.josephshortt.blockchainbank.repository.BankAccountRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 import static com.josephshortt.blockchainbank.models.LoadBankAccounts.defaultBankAccounts;
 import static com.josephshortt.blockchainbank.models.LoadCustomerAccounts.accounts;
@@ -13,7 +16,8 @@ import static com.josephshortt.blockchainbank.models.LoadCustomerAccounts.accoun
 
 public class LoginController {
 
-
+    @Autowired
+    private BankAccountRepository bankAccountRepository;
 
     @PostMapping
     public ResponseEntity validateLogin(@RequestBody CustomerAccount loginAttempt){
@@ -40,17 +44,18 @@ public class LoginController {
             return ResponseEntity.status(401).build(); // no valid user found
         }
 
-        DefaultBankAccount matchedBank = null;
-        for (DefaultBankAccount bank : defaultBankAccounts) {
-            if (bank.getCustomerId().equals(accountResponse.getCustomerId())) {
-                matchedBank = bank;
-                break;
-            }
+
+        // CHANGED: Query database directly instead of using static list
+        Optional<DefaultBankAccount> matchedBankOpt =
+                bankAccountRepository.findByCustomerId(accountResponse.getCustomerId());
+
+        if (matchedBankOpt.isEmpty()) {
+            return ResponseEntity.status(404).body("Bank account not found");
         }
 
+        DefaultBankAccount matchedBank = matchedBankOpt.get();
         LoginResponse response = new LoginResponse(accountResponse, matchedBank);
         return ResponseEntity.ok(response);
     }
-
-
+    
 }
