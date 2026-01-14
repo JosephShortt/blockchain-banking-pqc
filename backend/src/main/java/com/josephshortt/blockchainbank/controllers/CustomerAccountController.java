@@ -52,7 +52,7 @@ public class CustomerAccountController {
                 "A"+customerAccount.getCustomerId(),
                 generatedIban,
                 AccountType.CURRENT,
-                0);
+                1000);
 
         bankAccountRepository.save(defaultBankAccount);
         LoadBankAccounts.defaultBankAccounts.add(defaultBankAccount);
