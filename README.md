@@ -1,5 +1,9 @@
 # Blockchain Banking PQC - Final Year Project
 
+## Project Overview
+My project is a blockchain banking system incorporating **PQC**(Post Quantum Cryptography) algorithms for future profing the system. It features a react frontend and a java spring boot backend for all business logic. My aim is to create a fully functional permissioned blockchain in which all transactions between users are through the blockchain. 
+I plan to integrate PQC signatures in transaction processes. 
+
 ## File Structure
 ```
 │   README.md
