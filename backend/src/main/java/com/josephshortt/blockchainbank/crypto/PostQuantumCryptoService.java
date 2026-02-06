@@ -19,7 +19,8 @@ public class PostQuantumCryptoService {
     //Generate dilithium key pair
     public KeyPair generateDilithiumKeyPair() throws Exception {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("Dilithium","BCPQC");
-        keyGen.initialize(DilithiumParameterSpec.dilithium3);
+        //Using dilithium 5 instead of 3 for max security
+        keyGen.initialize(DilithiumParameterSpec.dilithium5);
         return keyGen.generateKeyPair();
     }
 
