@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import BankSelection from './components/BankSelection.js';
 import AccountCreation from './components/AccountCreations';
 import UserLogin from './components/UserLogin.js';
 import Home from './components/Home';
@@ -46,9 +47,10 @@ function App() {
         <Navigation />
         <div style={{ paddingTop: '70px' }}>
         <Routes>
-          <Route path="/" element={< Home />} />
+          <Route path="/" element={<BankSelection />} />
           <Route path="/create" element={<AccountCreation />} />
           <Route path="/login" element={<UserLogin />} />
+          <Route path="/dashboard" element={<Home />} />
         </Routes>
         </div>
       </Router>
