@@ -21,7 +21,6 @@ public class PostQuantumCrpytoServiceTest {
         String data = "Test transaction";
         String signature = pqc.signDilithium(data, keys.getPrivate());
         assertNotNull(signature);
-
         // Verify signature
         boolean valid = pqc.verifyDilithium(data, signature, keys.getPublic());
         assertTrue(valid);
