@@ -57,5 +57,5 @@ public class LoginController {
         LoginResponse response = new LoginResponse(accountResponse, matchedBank);
         return ResponseEntity.ok(response);
     }
-    
+
 }
