@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../contexts/UserContext';
-import api from '../api';
 import axios from 'axios';
 
 function AccountCreation() {
@@ -25,12 +24,12 @@ function AccountCreation() {
         e.preventDefault();
 
         try {
-            const response = await api.post(`${selectedBank.apiUrl}/api/accounts`, {
+            const response = await axios.post(`${selectedBank.apiUrl}/api/accounts`, {
                 firstName,
                 surname,
                 email,
                 password,
-                bankId: selectedBank.bankId
+                bankId: selectedBank.id
             }, {
                 headers: {
                     'Content-Type': 'application/json'
@@ -48,7 +47,7 @@ function AccountCreation() {
         }
         
         try {
-            const response =  await api.post(`${selectedBank.apiUrl}/api/accounts/login`, {
+            const response =  await axios.post(`${selectedBank.apiUrl}/api/accounts/login`, {
                 email,
                 password
             });
@@ -61,7 +60,7 @@ function AccountCreation() {
             localStorage.setItem("accountData", JSON.stringify(response.data.bankAccount));
             localStorage.setItem("selectedBank", JSON.stringify(selectedBank));
 
-            navigate('/')
+            navigate('/dashboard')
 
         } catch (error) {
 

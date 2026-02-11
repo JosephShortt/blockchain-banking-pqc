@@ -14,15 +14,26 @@ public class CustomerAccount {
 
     private String firstName,surname,email,password;
 
+    private String bankId;
+
     public CustomerAccount() {
     }
 
-    public CustomerAccount(Long customerId, String firstName, String surname, String email,String password) {
+    public CustomerAccount(Long customerId, String firstName, String surname, String email,String password, String bankId) {
         this.customerId = customerId;
         this.firstName = firstName;
         this.surname = surname;
         this.email = email;
         this.password=password;
+        this.bankId = bankId;
+    }
+
+    public String getBankId() {
+        return bankId;
+    }
+
+    public void setBankId(String bankId) {
+        this.bankId = bankId;
     }
 
     public Long getCustomerId() {

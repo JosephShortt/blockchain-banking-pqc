@@ -31,7 +31,7 @@ function Navigation() {
       </div>   
 
       <div style={{ display: 'flex', gap: '10px',marginRight: '30px'  }}>
-        <button onClick={() => navigate('/create')} style={{ padding: '5px 10px' }}>Create Account</button>
+        <button onClick={() => navigate('/register')} style={{ padding: '5px 10px' }}>Create Account</button>
         <button onClick={() => navigate('/login')} style={{ padding: '5px 10px' }}>Login</button>
       </div>
     </div >
@@ -48,7 +48,7 @@ function App() {
         <div style={{ paddingTop: '70px' }}>
         <Routes>
           <Route path="/" element={<BankSelection />} />
-          <Route path="/create" element={<AccountCreation />} />
+          <Route path="/register" element={<AccountCreation />} />
           <Route path="/login" element={<UserLogin />} />
           <Route path="/dashboard" element={<Home />} />
         </Routes>

@@ -11,15 +11,26 @@ public class DefaultBankAccount {
     private String accountId,iban;
     private AccountType accountType;
     private double balance;
+    private String bankId;
 
     public DefaultBankAccount(){}
 
-    public DefaultBankAccount(Long customerId, String accountId, String iban, AccountType accountType, double balance){
+    public DefaultBankAccount(Long customerId, String accountId, String iban, AccountType accountType, double balance, String bankId){
         this.customerId=customerId;
         this.accountId=accountId;
         this.iban = iban;
         this.accountType=accountType;
         this.balance=balance;
+        this.bankId = bankId;
+    }
+
+
+    public String getBankId() {
+        return bankId;
+    }
+
+    public void setBankId(String bankId) {
+        this.bankId = bankId;
     }
 
     public Long getCustomerId() {
