@@ -12,8 +12,12 @@ export function UserProvider({ children }) {
     return JSON.parse(localStorage.getItem("accountData")) || null;
   });
 
+   const [selectedBank, setSelectedBank] = useState(() => {
+    return JSON.parse(localStorage.getItem("selectedBank")) || null;
+  });
+
   return (
-    <UserContext.Provider value={{ userData, setUserData, accountData, setAccountData }}>
+    <UserContext.Provider value={{ userData, setUserData, accountData, setAccountData, selectedBank, setSelectedBank }}>
       {children}
     </UserContext.Provider>
   );
