@@ -32,6 +32,7 @@ function Home() {
 
     // Redirect if no bank selected
   if (!selectedBank) {
+    alert("Please Select a Bank First")
     navigate('/');
     return null;
   }
