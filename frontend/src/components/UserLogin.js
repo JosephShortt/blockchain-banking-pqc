@@ -1,19 +1,20 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../contexts/UserContext";
-import api from "../api";
+import axios from "axios";
+
 function UserLogin() {
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const { setUserData, setAccountData } = useUser();
+    const { setUserData, setAccountData, selectedBank } = useUser();
     const navigate = useNavigate();
 
 
     async function handleSubmit(e) {
         e.preventDefault()
         try {
-            const response =  await api.post('/api/accounts/login', {
+            const response =  await axios.post(`${selectedBank.apiUrl}/api/accounts/login`, {
                 email,
                 password
             });
@@ -24,9 +25,10 @@ function UserLogin() {
             
             localStorage.setItem("userData", JSON.stringify(response.data.accountResponse));
             localStorage.setItem("accountData", JSON.stringify(response.data.bankAccount));
+            localStorage.setItem("selectedBank",JSON.stringify(selectedBank));
             
             console.log("Login successful:", response.data);
-            navigate('/')
+            navigate('/dashboard')
 
         } catch (error) {
             if (error.response && error.response.status === 401) {
