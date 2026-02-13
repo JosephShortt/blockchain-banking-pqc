@@ -1,9 +1,9 @@
 package com.josephshortt.blockchainbank.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+
+import java.security.PrivateKey;
+import java.security.PublicKey;
 
 @Entity
 public class CustomerAccount {
@@ -15,6 +15,12 @@ public class CustomerAccount {
     private String firstName,surname,email,password;
 
     private String bankId;
+
+    @Column(columnDefinition = "TEXT")
+    private String encryptedPrivateKey;
+
+    @Column(columnDefinition = "TEXT")
+    private String publicKey;
 
     public CustomerAccount() {
     }
@@ -34,6 +40,22 @@ public class CustomerAccount {
 
     public void setBankId(String bankId) {
         this.bankId = bankId;
+    }
+
+    public String getEncryptedPrivateKey() {
+        return encryptedPrivateKey;
+    }
+
+    public void setEncryptedPrivateKey(String encryptedPrivateKey) {
+        this.encryptedPrivateKey = encryptedPrivateKey;
+    }
+
+    public String getPublicKey() {
+        return publicKey;
+    }
+
+    public void setPublicKey(String publicKey) {
+        this.publicKey = publicKey;
     }
 
     public Long getCustomerId() {
