@@ -1,6 +1,6 @@
 package com.josephshortt.blockchain.tests.crypto;
 
-import com.josephshortt.blockchainbank.crypto.PostQuantumCryptoService;
+import com.josephshortt.blockchainbank.crypto.PQCService;
 import org.junit.jupiter.api.Test;
 
 import java.security.KeyPair;
@@ -11,7 +11,7 @@ public class PostQuantumCrpytoServiceTest {
 
     @Test
     public void testDilithiumSignatureWorks() throws Exception {
-        PostQuantumCryptoService pqc = new PostQuantumCryptoService();
+        PQCService pqc = new PQCService();
 
         // Generate keys
         KeyPair keys = pqc.generateDilithiumKeyPair();

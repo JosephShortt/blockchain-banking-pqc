@@ -4,13 +4,11 @@ import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
 import org.bouncycastle.pqc.jcajce.spec.DilithiumParameterSpec;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.util.Base64;
-import java.util.concurrent.ExecutionException;
 
 @Service
-public class PostQuantumCryptoService {
+public class PQCService {
 
     static{
         Security.addProvider(new BouncyCastlePQCProvider());
