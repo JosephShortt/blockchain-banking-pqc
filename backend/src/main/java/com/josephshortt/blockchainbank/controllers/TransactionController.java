@@ -1,15 +1,13 @@
 package com.josephshortt.blockchainbank.controllers;
 
-import com.josephshortt.blockchainbank.models.LoadBankAccounts;
-import com.josephshortt.blockchainbank.models.Transaction;
-import com.josephshortt.blockchainbank.models.TransactionRequest;
-import com.josephshortt.blockchainbank.models.DefaultBankAccount;
+import com.josephshortt.blockchainbank.models.*;
 import com.josephshortt.blockchainbank.repository.BankAccountRepository;
 import com.josephshortt.blockchainbank.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -29,7 +27,7 @@ public class TransactionController {
 
         DefaultBankAccount senderAccount = request.getAccount();
 
-        double amount = request.getAmount();
+        BigDecimal amount = BigDecimal.valueOf(request.getAmount());
         String iban = request.getIban();
 
         Optional<DefaultBankAccount> optionalReceiver = bankAccountRepository.findByIban(iban);
@@ -40,29 +38,33 @@ public class TransactionController {
 
         DefaultBankAccount receiverAccount = optionalReceiver.get();
 
-
-        if(amount <= senderAccount.getBalance()){
-            // Update balances
-            senderAccount.setBalance(senderAccount.getBalance() - amount);
-            receiverAccount.setBalance(receiverAccount.getBalance() + amount);
-
-
-            // Save changes to DB
-            bankAccountRepository.save(senderAccount);
-            bankAccountRepository.save(receiverAccount);
+        if(senderAccount.getBankId().equals(receiverAccount.getBankId())){
+            if(senderAccount.getBalance().compareTo(amount) >=0){
+                // Update balances
+                senderAccount.setBalance(senderAccount.getBalance().subtract(amount));
+                receiverAccount.setBalance(receiverAccount.getBalance().add(amount));
 
 
-            // Record transaction
-            Transaction transaction = new Transaction(senderAccount.getIban(), receiverAccount.getIban(), amount, LocalDateTime.now());
-            transactionRepository.save(transaction);
+                // Save changes to DB
+                bankAccountRepository.save(senderAccount);
+                bankAccountRepository.save(receiverAccount);
 
 
-            return ResponseEntity.ok(senderAccount);
+                // Record transaction
+                Transaction transaction = new Transaction(senderAccount.getIban(), receiverAccount.getIban(), amount, LocalDateTime.now());
+                transaction.setTransactionType(TransactionType.INTERNAL);
+                transactionRepository.save(transaction);
+
+
+                return ResponseEntity.ok(senderAccount);
+            }
+        }
+        else{
+
         }
 
         return ResponseEntity.status(400).body("Insufficient Funds");
+
     }
-
-
 
 }

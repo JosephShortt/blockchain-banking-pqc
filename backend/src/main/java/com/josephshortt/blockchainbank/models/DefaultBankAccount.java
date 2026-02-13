@@ -1,7 +1,11 @@
 package com.josephshortt.blockchainbank.models;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+
+import java.math.BigDecimal;
 
 import static com.josephshortt.blockchainbank.models.AccountType.CURRENT;
 @Entity
@@ -9,13 +13,16 @@ public class DefaultBankAccount {
     @Id
     private Long customerId;
     private String accountId,iban;
+
+    @Enumerated(EnumType.STRING)
     private AccountType accountType;
-    private double balance;
+
+    private BigDecimal balance;
     private String bankId;
 
     public DefaultBankAccount(){}
 
-    public DefaultBankAccount(Long customerId, String accountId, String iban, AccountType accountType, double balance, String bankId){
+    public DefaultBankAccount(Long customerId, String accountId, String iban, AccountType accountType, BigDecimal balance, String bankId){
         this.customerId=customerId;
         this.accountId=accountId;
         this.iban = iban;
@@ -61,11 +68,11 @@ public class DefaultBankAccount {
         this.accountType = accountType;
     }
 
-    public double getBalance() {
+    public BigDecimal getBalance() {
         return balance;
     }
 
-    public void setBalance(double balance) {
+    public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
 }
