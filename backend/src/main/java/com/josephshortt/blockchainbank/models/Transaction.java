@@ -3,6 +3,7 @@ package com.josephshortt.blockchainbank.models;
 import jakarta.persistence.Entity;
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -13,14 +14,17 @@ public class Transaction {
 
     private String senderIban;
     private String receiverIban;
-    private double amount;
+    private BigDecimal amount;
 
     private LocalDateTime timestamp;
+
+    @Enumerated(EnumType.STRING)
+    private TransactionType transactionType;
 
     // Constructors, getters, setters
     public Transaction() {}
 
-    public Transaction(String senderIban, String receiverIban, double amount, LocalDateTime timestamp) {
+    public Transaction(String senderIban, String receiverIban, BigDecimal amount, LocalDateTime timestamp) {
         this.senderIban = senderIban;
         this.receiverIban = receiverIban;
         this.amount = amount;
@@ -33,6 +37,14 @@ public class Transaction {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public TransactionType getTransactionType() {
+        return transactionType;
+    }
+
+    public void setTransactionType(TransactionType transactionType) {
+        this.transactionType = transactionType;
     }
 
     public String getSenderIban() {
@@ -51,11 +63,11 @@ public class Transaction {
         this.receiverIban = receiverIban;
     }
 
-    public double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 
