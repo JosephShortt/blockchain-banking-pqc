@@ -9,6 +9,7 @@ function Home() {
   const { userData, accountData, selectedBank } = useUser();
   const [amount, setAmount] = useState(0);
   const [iban, setIban] = useState("");
+  const [password, setPassword] = useState("");
   const [transactions, setTransactions] = useState([]); // store transactions
 
 
@@ -60,7 +61,8 @@ function Home() {
         {
           account: accountData,
           amount,
-          iban
+          iban,
+          password
         }
 
       )
@@ -102,6 +104,7 @@ function Home() {
         <input type="text" value={iban} onChange={(e) => setIban(e.target.value)} placeholder="Enter Iban of account to send to" />
 
         <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Enter amount" />
+        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter Password" />
         <button type="button"
           onClick={handleSendFunds} style={{ padding: '5px 10px' }}>Send</button>
 
