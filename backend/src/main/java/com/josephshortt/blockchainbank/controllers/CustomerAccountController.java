@@ -1,5 +1,6 @@
 package com.josephshortt.blockchainbank.controllers;
 
+import com.josephshortt.blockchainbank.crypto.KeyManagementService;
 import com.josephshortt.blockchainbank.models.*;
 import com.josephshortt.blockchainbank.repository.BankAccountRepository;
 import com.josephshortt.blockchainbank.repository.CustomerRepository;
@@ -20,8 +21,12 @@ public class CustomerAccountController {
     @Autowired
     private BankAccountRepository bankAccountRepository;
 
+    //key generation and storage
+    @Autowired
+    private KeyManagementService keyManagementService;
+
     @PostMapping
-    public ResponseEntity<Object> createAccount(@RequestBody CustomerAccount customerAccount) {
+    public ResponseEntity<Object> createAccount(@RequestBody CustomerAccount customerAccount) throws Exception {
 
         if(customerAccount.getFirstName().isEmpty() || customerAccount.getSurname().isEmpty()
                 || customerAccount.getEmail().isEmpty() || customerAccount.getPassword().isEmpty()
@@ -35,6 +40,9 @@ public class CustomerAccountController {
         if(existingCustomer.isPresent()) {
             return ResponseEntity.status(401).body("Email is already in use");
         }
+
+        //Generate and store user keypair
+        keyManagementService.generateAndStoreKeys(customerAccount,customerAccount.getPassword());
 
         //Hash the passed password
         HashPassword hash = new HashPassword(customerAccount.getPassword());
