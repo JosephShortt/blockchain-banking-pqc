@@ -135,6 +135,8 @@ public class TransactionController {
                 blockTx.setSenderPublicKey(publicKey);
 
                 blockTransactionRepository.save(blockTx);
+
+                return ResponseEntity.ok("External transfer signed and pending");
             }
         }
 
