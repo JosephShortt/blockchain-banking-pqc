@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@Table(name = "block", schema = "blockchain")
 public class Block {
     @Id
     private Long blockNumber;

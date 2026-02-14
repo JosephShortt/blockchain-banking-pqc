@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "block_transaction", schema = "blockchain")
 public class BlockTransaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
