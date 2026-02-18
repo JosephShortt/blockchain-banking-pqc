@@ -104,6 +104,7 @@ public class TransactionController {
                 localTx.setTransactionType(TransactionType.EXTERNAL);
                 transactionRepository.save(localTx);
 
+                //Get user password to decrypt and use users private key
                 String userPassword = request.getPassword();
                 Long customerId = senderAccount.getCustomerId();
 
