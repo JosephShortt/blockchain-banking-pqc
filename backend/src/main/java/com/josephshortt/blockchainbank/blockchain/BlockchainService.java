@@ -60,7 +60,7 @@ public class BlockchainService {
     //get pending transactions
     public List<BlockTransaction> getPendingTransactions(){
 
-        return List.of();
+        return blockTransactionRepository.findByBlockIsNull();
     }
 
     /*
