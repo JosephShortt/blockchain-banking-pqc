@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -75,9 +76,28 @@ public class BlockchainService {
     }
 
 
-    private String calculateMerkleRoot(List<BlockTransaction> transactions){
+    private String calculateMerkleRoot(List<BlockTransaction> transactions) throws Exception {
+        if(transactions ==null || transactions.isEmpty()){
+            return pqcService.hashSHA256("empty");
+        }
 
-        return "";
+        List<String> txHashes = new ArrayList<>();
+
+        //hash each transactions
+        for(BlockTransaction tx : transactions){
+            String data = tx.getSenderIban() + tx.getReceiverIban() + tx.getAmount().toString() + tx.getSenderBankId() + tx.getReceiverBankId();
+            String hash = pqcService.hashSHA256(data);
+            txHashes.add(hash);
+        }
+
+        //Finally, hash the tx hashes into one hash
+
+        StringBuilder combined = new StringBuilder();
+        for(String hash : txHashes){
+            combined.append(hash);
+        }
+
+        return pqcService.hashSHA256(combined.toString());
     }
 
 
