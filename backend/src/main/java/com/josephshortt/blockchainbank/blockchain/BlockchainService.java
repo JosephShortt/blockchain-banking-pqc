@@ -52,9 +52,9 @@ public class BlockchainService {
         return pqcService.hashSHA256(data);
     }
 
-    public Block getLatestBlock(){
+    public Optional<Block> getLatestBlock(){
 
-        return null;
+        return blockRepository.findFirstByOrderByBlockNumberDesc();
     }
 
     //get pending transactions
