@@ -1,17 +1,18 @@
 package com.josephshortt.blockchainbank.blockchain;
 
 import com.josephshortt.blockchainbank.crypto.PQCService;
+import com.josephshortt.blockchainbank.repository.BankKeysRepository;
 import com.josephshortt.blockchainbank.repository.BlockRepository;
 import com.josephshortt.blockchainbank.repository.BlockTransactionRepository;
 import jakarta.annotation.PostConstruct;
+import org.bouncycastle.util.encoders.Base64Encoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.util.*;
 
 @Service
 public class BlockchainService {
@@ -23,6 +24,9 @@ public class BlockchainService {
 
     @Autowired
     private PQCService pqcService;
+
+    @Autowired
+    private BankKeysRepository bankKeysRepository;
 
     /*
       Basic Block operations
@@ -44,6 +48,29 @@ public class BlockchainService {
 
             blockRepository.save(genesis);
             System.out.println("**Genesis Block Created**");
+        }
+
+        if(bankKeysRepository.count() == 0){
+            generateBankKeys();
+        }
+    }
+
+    private void generateBankKeys() throws Exception {
+        String[] banks = {"bank-a" , "bank-b", "bank-c"};
+
+        for(String bankId : banks){
+            KeyPair keys = pqcService.generateDilithiumKeyPair();
+
+            String publicKey = Base64.getEncoder().encodeToString(keys.getPublic().getEncoded());
+            String privateKey = Base64.getEncoder().encodeToString(keys.getPrivate().getEncoded());
+
+            BankKeys bankKeys = new BankKeys();
+            bankKeys.setBankId(bankId);
+            bankKeys.setBankPublicKey(publicKey);
+            bankKeys.setBankPrivateKey(privateKey);
+
+            bankKeysRepository.save(bankKeys);
+            System.out.println("Generated Keys for "+bankId);
         }
     }
 
@@ -102,6 +129,7 @@ public class BlockchainService {
 
 
     private String signBlock(Block block){
+        String data = block.getBlockNumber() + block.getPrevHash() +block.getProposerId() + block.getCreatedAt() + block.getMerkleRoot();
 
         return "";
     }
