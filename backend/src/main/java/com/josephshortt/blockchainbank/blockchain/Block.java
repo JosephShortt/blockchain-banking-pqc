@@ -39,6 +39,14 @@ public class Block {
         this.blockNumber = blockNumber;
     }
 
+    public String getBlockSignature() {
+        return blockSignature;
+    }
+
+    public void setBlockSignature(String blockSignature) {
+        this.blockSignature = blockSignature;
+    }
+
     public String getPrevHash() {
         return prevHash;
     }

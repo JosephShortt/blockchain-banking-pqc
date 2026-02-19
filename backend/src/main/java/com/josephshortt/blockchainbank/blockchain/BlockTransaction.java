@@ -35,6 +35,8 @@ public class BlockTransaction {
         this.createdAt = LocalDateTime.now();
     }
 
+
+
     public Block getBlock() {
         return block;
     }

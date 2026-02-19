@@ -7,6 +7,7 @@ import com.josephshortt.blockchainbank.repository.BlockTransactionRepository;
 import jakarta.annotation.PostConstruct;
 import org.bouncycastle.util.encoders.Base64Encoder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -28,6 +29,9 @@ public class BlockchainService {
 
     @Autowired
     private BankKeysRepository bankKeysRepository;
+
+    @Value("${bank.if}")
+    private String bankId;
 
     /*
       Basic Block operations
@@ -99,7 +103,49 @@ public class BlockchainService {
     3. sign block
      */
 
-    public void createBlock(){
+    public void createBlock() throws Exception {
+        List<BlockTransaction> pendingTransactions = getPendingTransactions();
+
+        if(pendingTransactions.isEmpty()){
+            System.out.println("No pending transactions: Skipping block creation");
+            return;
+        }
+        Block prevBlock = getLatestBlock().orElseThrow();
+        if(prevBlock.getStatus() != BlockStatus.FINALIZED){
+            System.out.println("Cannot create block " + (prevBlock.getBlockNumber() + 1) +
+                    " - block " + prevBlock.getBlockNumber() + " not finalized yet");
+            return;
+        }
+        //Continue to create block if previous checks pass
+        Block newBlock = new Block();
+
+        //Set block number and previous hash
+        newBlock.setBlockNumber(prevBlock.getBlockNumber()+1);
+        newBlock.setPrevHash(prevBlock.getHash());
+
+        //Set proposer ID
+        newBlock.setProposerId(bankId);
+        newBlock.setStatus(BlockStatus.PROPOSED);
+
+        for(BlockTransaction tx : pendingTransactions){
+            tx.setBlock(newBlock);
+        }
+        //Set merkle root
+        String root = calculateMerkleRoot(pendingTransactions);
+        newBlock.setMerkleRoot(root);
+
+        //Set block hash
+        String hash = calculateHash(newBlock);
+        newBlock.setHash(hash);
+
+        //Set signature
+        String signature = signBlock(newBlock);
+        newBlock.setBlockSignature(signature);
+
+        blockRepository.save(newBlock);
+        blockTransactionRepository.saveAll(pendingTransactions);
+
+        System.out.println("Block " + newBlock.getBlockNumber() + " created with " + pendingTransactions.size() + " transactions");
 
     }
 
