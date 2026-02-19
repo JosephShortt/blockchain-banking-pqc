@@ -91,6 +91,11 @@ public class TransactionController {
         }
         //Interbank transaction
         else{
+
+            if (!isValidIbanFormat(receiverIban)) {
+                return ResponseEntity.status(400).body("Invalid IBAN format. Expected format: IE29BANK[A/B/C]#####");
+            }
+
             if(senderAccount.getBalance().compareTo(amount) >=0){
                 senderAccount.setBalance(senderAccount.getBalance().subtract(amount));
                 bankAccountRepository.save(senderAccount);
@@ -155,6 +160,14 @@ public class TransactionController {
         if (iban.contains("BANKC")) return "bank-c";
 
         return "unknown";
+    }
+
+    private boolean isValidIbanFormat(String iban){
+        if(iban == null || iban.isEmpty()){
+            return false;
+        }
+
+        return iban.matches("IE29BANK[ABC]\\d{5}");
     }
 
 }
