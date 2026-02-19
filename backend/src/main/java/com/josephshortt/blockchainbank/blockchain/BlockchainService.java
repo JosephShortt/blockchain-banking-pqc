@@ -1,5 +1,6 @@
 package com.josephshortt.blockchainbank.blockchain;
 
+import com.josephshortt.blockchainbank.crypto.KeyManagementService;
 import com.josephshortt.blockchainbank.crypto.PQCService;
 import com.josephshortt.blockchainbank.repository.BankKeysRepository;
 import com.josephshortt.blockchainbank.repository.BlockRepository;
@@ -29,6 +30,9 @@ public class BlockchainService {
 
     @Autowired
     private BankKeysRepository bankKeysRepository;
+
+    @Autowired
+    private KeyManagementService keyManagementService;
 
     @Value("${bank.id}")
     private String bankId;
@@ -199,10 +203,56 @@ public class BlockchainService {
 
      */
 
-    public boolean validateBlock(Block block){
+    public boolean validateBlock(Block block) throws Exception {
+        //Check if valid merkle root
+        String calculatedMerkle = calculateMerkleRoot(block.getTransactions());
+        if(!calculatedMerkle.equals(block.getMerkleRoot())){
+            return false;
+        }
 
-        return false;
+        //Check if valid hash
+        String hash = calculateHash(block);
+        if(!hash.equals(block.getHash())){
+            return false;
+        }
+
+        //Check if previous block hash is correct
+        Block prevBlock = getBlockByNumber(block.getBlockNumber()-1).orElseThrow();
+        if(!block.getPrevHash().equals(prevBlock.getHash())){
+            return false;
+        }
+
+        //Verify proposer signed this block
+        BankKeys proposerKeys = bankKeysRepository.findByBankId(block.getProposerId()).orElseThrow();
+        PublicKey proposerPublicKey = keyManagementService.decodePublicKey(proposerKeys.getBankPublicKey());
+
+        String blockData = block.getBlockNumber() + block.getPrevHash() + block
+                + block.getMerkleRoot() + block.getCreatedAt();
+
+        if(!pqcService.verifyDilithium(blockData,block.getBlockSignature(), proposerPublicKey)){
+            return false;
+        }
+
+        for(BlockTransaction tx : block.getTransactions()){
+            if(!validateTransactionSignature(tx)){
+                return false;
+            }
+        }
+        return true;
     }
+
+    public boolean validateTransactionSignature(BlockTransaction tx) throws Exception {
+        PublicKey publicKey = keyManagementService.decodePublicKey(tx.getSenderPublicKey());
+
+        String txData = tx.getSenderIban()+
+                tx.getReceiverIban()+
+                tx.getAmount().toString();
+
+        String signature = tx.getSenderSignature();
+
+        return pqcService.verifyDilithium(txData, signature, publicKey);
+    }
+
 
     public boolean validateChain(){
 
