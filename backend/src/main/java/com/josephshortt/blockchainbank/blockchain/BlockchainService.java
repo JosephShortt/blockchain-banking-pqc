@@ -30,7 +30,7 @@ public class BlockchainService {
     @Autowired
     private BankKeysRepository bankKeysRepository;
 
-    @Value("${bank.if}")
+    @Value("${bank.id}")
     private String bankId;
 
     /*
@@ -127,9 +127,7 @@ public class BlockchainService {
         newBlock.setProposerId(bankId);
         newBlock.setStatus(BlockStatus.PROPOSED);
 
-        for(BlockTransaction tx : pendingTransactions){
-            tx.setBlock(newBlock);
-        }
+
         //Set merkle root
         String root = calculateMerkleRoot(pendingTransactions);
         newBlock.setMerkleRoot(root);
@@ -143,6 +141,11 @@ public class BlockchainService {
         newBlock.setBlockSignature(signature);
 
         blockRepository.save(newBlock);
+
+        for(BlockTransaction tx : pendingTransactions){
+            tx.setBlock(newBlock);
+        }
+
         blockTransactionRepository.saveAll(pendingTransactions);
 
         System.out.println("Block " + newBlock.getBlockNumber() + " created with " + pendingTransactions.size() + " transactions");
