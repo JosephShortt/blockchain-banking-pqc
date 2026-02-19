@@ -10,8 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.security.KeyPair;
-import java.security.PrivateKey;
+import java.security.*;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.*;
 
 @Service
@@ -128,10 +129,17 @@ public class BlockchainService {
     }
 
 
-    private String signBlock(Block block){
+    private String signBlock(Block block) throws Exception {
         String data = block.getBlockNumber() + block.getPrevHash() +block.getProposerId() + block.getCreatedAt() + block.getMerkleRoot();
+        BankKeys keys = bankKeysRepository.findByBankId(block.getProposerId()).orElseThrow();
+        byte[] bytes = Base64.getDecoder().decode(keys.getBankPrivateKey());
 
-        return "";
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(bytes);
+
+        KeyFactory keyFactory = KeyFactory.getInstance("Dilithium", "BCPQC");
+        PrivateKey privateKey = keyFactory.generatePrivate(keySpec);
+
+        return pqcService.signDilithium(data,privateKey);
     }
 
       /*
