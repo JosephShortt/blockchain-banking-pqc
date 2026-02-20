@@ -207,18 +207,21 @@ public class BlockchainService {
         //Check if valid merkle root
         String calculatedMerkle = calculateMerkleRoot(block.getTransactions());
         if(!calculatedMerkle.equals(block.getMerkleRoot())){
+            System.out.println("***Merkle tree invalid***");
             return false;
         }
 
         //Check if valid hash
         String hash = calculateHash(block);
         if(!hash.equals(block.getHash())){
+            System.out.println("***Block hash invalid***");
             return false;
         }
 
         //Check if previous block hash is correct
         Block prevBlock = getBlockByNumber(block.getBlockNumber()-1).orElseThrow();
         if(!block.getPrevHash().equals(prevBlock.getHash())){
+            System.out.println("***Previous block hash invalid***");
             return false;
         }
 
@@ -230,11 +233,13 @@ public class BlockchainService {
                 + block.getMerkleRoot() + block.getCreatedAt();
 
         if(!pqcService.verifyDilithium(blockData,block.getBlockSignature(), proposerPublicKey)){
+            System.out.println("***Block signature invalid***");
             return false;
         }
 
         for(BlockTransaction tx : block.getTransactions()){
             if(!validateTransactionSignature(tx)){
+                System.out.println("***Transaction signature invalid***");
                 return false;
             }
         }
