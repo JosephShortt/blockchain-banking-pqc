@@ -293,6 +293,7 @@ public class BlockchainService {
     }
 
     public Optional<Block> getBlockByNumber(Long blockNumber){
-        return Optional.empty();
+        Block block = blockRepository.findByBlockNumber(blockNumber).orElseThrow();
+        return Optional.of(block);
     }
 }
