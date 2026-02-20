@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface BlockRepository extends JpaRepository<Block,Long> {
     Optional<Block> findFirstByOrderByBlockNumberDesc();
+    Optional<Block> findByBlockNumber(Long blockNumber);
 }
