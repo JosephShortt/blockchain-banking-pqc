@@ -2,9 +2,10 @@ package com.josephshortt.blockchainbank.blockchain;
 
 import com.josephshortt.blockchainbank.crypto.KeyManagementService;
 import com.josephshortt.blockchainbank.crypto.PQCService;
-import com.josephshortt.blockchainbank.repository.BankKeysRepository;
-import com.josephshortt.blockchainbank.repository.BlockRepository;
-import com.josephshortt.blockchainbank.repository.BlockTransactionRepository;
+import com.josephshortt.blockchainbank.models.DefaultBankAccount;
+import com.josephshortt.blockchainbank.models.Transaction;
+import com.josephshortt.blockchainbank.models.TransactionType;
+import com.josephshortt.blockchainbank.repository.*;
 import jakarta.annotation.PostConstruct;
 import org.bouncycastle.util.encoders.Base64Encoder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import java.math.BigDecimal;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -37,6 +39,11 @@ public class BlockchainService {
     @Value("${bank.id}")
     private String bankId;
 
+    @Autowired
+    private BankAccountRepository bankAccountRepository;
+
+    @Autowired
+    TransactionRepository transactionRepository;
     /*
       Basic Block operations
       1. Initialise genesis block
@@ -302,7 +309,41 @@ public class BlockchainService {
      */
 
     public void processIncomingTransactions(Block finalizedBlock){
+        String currentBankId = bankId;
 
+        List<BlockTransaction> incomingTxs = finalizedBlock.getTransactions()
+                .stream()
+                .filter(tx -> tx.getReceiverBankId().equals(bankId))
+                .toList();
+
+        System.out.println("Processing " + incomingTxs.size() + " incoming transactions");
+
+        for(BlockTransaction tx : incomingTxs){
+            Optional<DefaultBankAccount> receiverAccount = bankAccountRepository.findByIban(tx.getReceiverIban());
+
+            if(receiverAccount.isEmpty()){
+                System.out.println("Settlement Failed: Account "+ tx.getReceiverIban() + " not found.");
+                // TODO: Notify sender's bank to refund
+                continue;
+            }
+
+            DefaultBankAccount receiver = receiverAccount.get();
+            receiver.setBalance(receiver.getBalance().add(tx.getAmount()));
+            bankAccountRepository.save(receiver);
+
+            //record local transactions table
+            Transaction localTx = new Transaction(
+                    tx.getSenderIban(),
+                    tx.getReceiverIban(),
+                    tx.getAmount(),
+                    LocalDateTime.now()
+            );
+
+            localTx.setTransactionType(TransactionType.EXTERNAL);
+            transactionRepository.save(localTx);
+
+            System.out.println("Credited "+tx.getReceiverIban() + " with € "+tx.getAmount());
+        }
     }
 
     public Map<String, BigDecimal> calculateNetPositions(Block block){
