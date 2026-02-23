@@ -229,7 +229,7 @@ public class BlockchainService {
         BankKeys proposerKeys = bankKeysRepository.findByBankId(block.getProposerId()).orElseThrow();
         PublicKey proposerPublicKey = keyManagementService.decodePublicKey(proposerKeys.getBankPublicKey());
 
-        String blockData = block.getBlockNumber() + block.getPrevHash() + block
+        String blockData = block.getBlockNumber() + block.getPrevHash() + block.getProposerId()
                 + block.getMerkleRoot() + block.getCreatedAt();
 
         if(!pqcService.verifyDilithium(blockData,block.getBlockSignature(), proposerPublicKey)){
@@ -259,9 +259,39 @@ public class BlockchainService {
     }
 
 
-    public boolean validateChain(){
+    public boolean validateChain() throws Exception {
+        // Get all finalized blocks in order
+        List<Block> finalizedBlocks = blockRepository.findByStatusOrderByBlockNumberAsc(BlockStatus.FINALIZED);
 
-        return false;
+        if (finalizedBlocks.isEmpty()) {
+            return true;  // No blocks yet is valid
+        }
+
+        // Check starts with genesis
+        if (finalizedBlocks.get(0).getBlockNumber() != 0L) {
+            System.out.println("Chain doesn't start with genesis");
+            return false;
+        }
+
+        // Validate sequence and integrity
+        for (int i = 0; i < finalizedBlocks.size(); i++) {
+            Block block = finalizedBlocks.get(i);
+
+            // Check sequence
+            if (block.getBlockNumber() != i) {
+                System.out.println("Block gap at position " + i);
+                return false;
+            }
+
+            // Validate block
+            if (!validateBlock(block)) {
+                System.out.println("Block " + i + " invalid");
+                return false;
+            }
+        }
+
+        System.out.println("Chain valid: " + finalizedBlocks.size() + " blocks");
+        return true;
     }
 
     /*
