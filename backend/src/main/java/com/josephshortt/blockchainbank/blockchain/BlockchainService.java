@@ -346,9 +346,22 @@ public class BlockchainService {
         }
     }
 
-    public Map<String, BigDecimal> calculateNetPositions(Block block){
+    public Map<String, BigDecimal> calculateNetPositions(Block block) {
+        Map<String, BigDecimal> netPositions = new HashMap<>();
 
-        return Map.of();
+        for (BlockTransaction tx : block.getTransactions()) {
+            String senderBank = tx.getSenderBankId();
+            String receiverBank = tx.getReceiverBankId();
+            BigDecimal amount = tx.getAmount();
+
+            // Sender loses money
+            netPositions.merge(senderBank, amount.negate(), BigDecimal::add);
+
+            // Receiver gains money
+            netPositions.merge(receiverBank, amount, BigDecimal::add);
+        }
+
+        return netPositions;
     }
 
     public void settleBankReserves(Block block){}
