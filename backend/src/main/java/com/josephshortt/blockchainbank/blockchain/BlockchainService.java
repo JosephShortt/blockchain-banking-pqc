@@ -3,6 +3,7 @@ package com.josephshortt.blockchainbank.blockchain;
 import com.josephshortt.blockchainbank.crypto.KeyManagementService;
 import com.josephshortt.blockchainbank.crypto.PQCService;
 import com.josephshortt.blockchainbank.models.DefaultBankAccount;
+import com.josephshortt.blockchainbank.models.ReserveAccount;
 import com.josephshortt.blockchainbank.models.Transaction;
 import com.josephshortt.blockchainbank.models.TransactionType;
 import com.josephshortt.blockchainbank.repository.*;
@@ -44,6 +45,10 @@ public class BlockchainService {
 
     @Autowired
     TransactionRepository transactionRepository;
+
+    @Autowired
+    private ReserveAccountRepository reserveAccountRepository;
+
     /*
       Basic Block operations
       1. Initialise genesis block
@@ -69,6 +74,37 @@ public class BlockchainService {
         if(bankKeysRepository.count() == 0){
             generateBankKeys();
         }
+
+        // Initialize bank reserves if not exist
+        if (reserveAccountRepository.count() == 0) {
+            initializeBankReserves();
+        }
+    }
+
+    private void initializeBankReserves() {
+        ReserveAccount bankA = new ReserveAccount(
+                "bank-a",
+                "Bank A",
+                new BigDecimal("1000000.00")
+        );
+
+        ReserveAccount bankB = new ReserveAccount(
+                "bank-b",
+                "Bank B",
+                new BigDecimal("1000000.00")
+        );
+
+        ReserveAccount bankC = new ReserveAccount(
+                "bank-c",
+                "Bank C",
+                new BigDecimal("1000000.00")
+        );
+
+        reserveAccountRepository.save(bankA);
+        reserveAccountRepository.save(bankB);
+        reserveAccountRepository.save(bankC);
+
+        System.out.println("Bank reserves initialized");
     }
 
     private void generateBankKeys() throws Exception {
@@ -92,9 +128,17 @@ public class BlockchainService {
 
     //Calculate hash of the current block using its data - prevHash, block number, merkle root ...
     public String calculateHash(Block block) throws Exception {
-        String data = block.getPrevHash() + block.getBlockNumber() + block.getMerkleRoot() + block.getCreatedAt();
-        return pqcService.hashSHA256(data);
+        return pqcService.hashSHA256(getBlockDataString(block));
     }
+
+    private String getBlockDataString(Block block) {
+        return block.getBlockNumber() +
+                block.getPrevHash() +
+                block.getProposerId() +
+                block.getMerkleRoot() +
+                block.getCreatedAt();
+    }
+
 
     public Optional<Block> getLatestBlock(){
 
@@ -173,7 +217,7 @@ public class BlockchainService {
 
         //hash each transactions
         for(BlockTransaction tx : transactions){
-            String data = tx.getSenderIban() + tx.getReceiverIban() + tx.getAmount().toString() + tx.getSenderBankId() + tx.getReceiverBankId();
+            String data = tx.getSenderIban() + tx.getReceiverIban() + tx.getAmount().toPlainString() + tx.getSenderBankId() + tx.getReceiverBankId();
             String hash = pqcService.hashSHA256(data);
             txHashes.add(hash);
         }
@@ -190,7 +234,8 @@ public class BlockchainService {
 
 
     private String signBlock(Block block) throws Exception {
-        String data = block.getBlockNumber() + block.getPrevHash() +block.getProposerId() + block.getCreatedAt() + block.getMerkleRoot();
+        String data = getBlockDataString(block);
+
         BankKeys keys = bankKeysRepository.findByBankId(block.getProposerId()).orElseThrow();
         byte[] bytes = Base64.getDecoder().decode(keys.getBankPrivateKey());
 
@@ -214,21 +259,21 @@ public class BlockchainService {
         //Check if valid merkle root
         String calculatedMerkle = calculateMerkleRoot(block.getTransactions());
         if(!calculatedMerkle.equals(block.getMerkleRoot())){
-            System.out.println("***Merkle tree invalid***");
+            System.out.println("*** Validation Failure: Merkle tree invalid***");
             return false;
         }
 
         //Check if valid hash
         String hash = calculateHash(block);
         if(!hash.equals(block.getHash())){
-            System.out.println("***Block hash invalid***");
+            System.out.println("*** Validation Failure: Block hash invalid***");
             return false;
         }
 
         //Check if previous block hash is correct
         Block prevBlock = getBlockByNumber(block.getBlockNumber()-1).orElseThrow();
         if(!block.getPrevHash().equals(prevBlock.getHash())){
-            System.out.println("***Previous block hash invalid***");
+            System.out.println("*** Validation Failure: Previous block hash invalid***");
             return false;
         }
 
@@ -236,17 +281,16 @@ public class BlockchainService {
         BankKeys proposerKeys = bankKeysRepository.findByBankId(block.getProposerId()).orElseThrow();
         PublicKey proposerPublicKey = keyManagementService.decodePublicKey(proposerKeys.getBankPublicKey());
 
-        String blockData = block.getBlockNumber() + block.getPrevHash() + block.getProposerId()
-                + block.getMerkleRoot() + block.getCreatedAt();
+        String blockData = getBlockDataString(block);
 
         if(!pqcService.verifyDilithium(blockData,block.getBlockSignature(), proposerPublicKey)){
-            System.out.println("***Block signature invalid***");
+            System.out.println("*** Validation Failure:Block signature invalid***");
             return false;
         }
 
         for(BlockTransaction tx : block.getTransactions()){
             if(!validateTransactionSignature(tx)){
-                System.out.println("***Transaction signature invalid***");
+                System.out.println("*** Validation Failure: Transaction signature invalid***");
                 return false;
             }
         }
@@ -258,7 +302,9 @@ public class BlockchainService {
 
         String txData = tx.getSenderIban()+
                 tx.getReceiverIban()+
-                tx.getAmount().toString();
+                tx.getAmount().toPlainString()+
+                tx.getSenderBankId()+
+                tx.getReceiverBankId();
 
         String signature = tx.getSenderSignature();
 
@@ -364,7 +410,49 @@ public class BlockchainService {
         return netPositions;
     }
 
-    public void settleBankReserves(Block block){}
+    public void settleBankReserves(Block block) {
+        // Calculate net positions for each bank
+        Map<String, BigDecimal> netPositions = calculateNetPositions(block);
+
+        System.out.println("=== Settling Bank Reserves for Block " + block.getBlockNumber() + " ===");
+
+        // Update each bank's reserve balance
+        for (Map.Entry<String, BigDecimal> entry : netPositions.entrySet()) {
+            String bankId = entry.getKey();
+            BigDecimal netAmount = entry.getValue();
+
+            // Find the bank's reserve account
+            Optional<ReserveAccount> optionalAccount = reserveAccountRepository.findById(bankId);
+
+            if (optionalAccount.isEmpty()) {
+                System.out.println("Reserve account not found for " + bankId);
+                continue;
+            }
+
+            // Update reserves
+            ReserveAccount account = optionalAccount.get();
+            BigDecimal oldBalance = account.getReserveBalance();
+            BigDecimal newBalance = oldBalance.add(netAmount);
+            account.setReserveBalance(newBalance);
+            reserveAccountRepository.save(account);
+
+            // Log the change
+            if (netAmount.compareTo(BigDecimal.ZERO) > 0) {
+                System.out.println(bankId + " receives €" + netAmount +
+                        " (reserves: €" + oldBalance + " → €" + newBalance + ")");
+            } else if (netAmount.compareTo(BigDecimal.ZERO) < 0) {
+                System.out.println(bankId + " pays €" + netAmount.abs() +
+                        " (reserves: €" + oldBalance + " → €" + newBalance + ")");
+            } else {
+                System.out.println("➖ " + bankId + " net zero (reserves: €" + newBalance + ")");
+            }
+        }
+
+        // Verify total is zero (money conserved)
+        BigDecimal total = netPositions.values().stream()
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        System.out.println("Total settlement: €" + total + " (should be €0.00)");
+    }
 
     /*
     Utility Methods
