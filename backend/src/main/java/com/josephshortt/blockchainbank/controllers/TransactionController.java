@@ -125,7 +125,9 @@ public class TransactionController {
                 //Create transaction data to sign
                 String txData = senderAccount.getIban()+
                         receiverIban+
-                        amount.toString();
+                        amount.toPlainString()+
+                        senderAccount.getBankId() +
+                        receiverBankId;
 
                 String signature = pqcService.signDilithium(txData,privateKey);
 
