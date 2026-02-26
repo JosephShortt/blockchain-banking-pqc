@@ -28,7 +28,7 @@ public class Block {
     private String blockSignature;
 
     public Block(){
-        this.createdAt = LocalDateTime.now();
+
     }
 
     public Long getBlockNumber() {

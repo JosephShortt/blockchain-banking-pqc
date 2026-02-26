@@ -65,6 +65,8 @@ public class BlockchainService {
             genesis.setPrevHash("0");
             genesis.setProposerId("System");
             genesis.setStatus(BlockStatus.FINALIZED);
+            genesis.setMerkleRoot("");
+            genesis.setCreatedAt(LocalDateTime.now());
             genesis.setHash(calculateHash(genesis));
 
             blockRepository.save(genesis);
@@ -177,6 +179,9 @@ public class BlockchainService {
         //Set block number and previous hash
         newBlock.setBlockNumber(prevBlock.getBlockNumber()+1);
         newBlock.setPrevHash(prevBlock.getHash());
+
+        //Set createdAt
+        newBlock.setCreatedAt(LocalDateTime.now());
 
         //Set proposer ID
         newBlock.setProposerId(bankId);
