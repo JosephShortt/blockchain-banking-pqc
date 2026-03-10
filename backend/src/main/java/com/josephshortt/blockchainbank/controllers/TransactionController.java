@@ -16,6 +16,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -51,8 +52,8 @@ public class TransactionController {
     public  ResponseEntity<?>  SendMoney(@RequestBody TransactionRequest request) throws Exception {
 
         DefaultBankAccount senderAccount = request.getAccount();
+        BigDecimal amount = BigDecimal.valueOf(request.getAmount()).setScale(2, RoundingMode.HALF_UP);
 
-        BigDecimal amount = BigDecimal.valueOf(request.getAmount());
         String receiverIban = request.getIban();
 
         String receiverBankId = extractBankIdFromIban(receiverIban);
@@ -128,6 +129,15 @@ public class TransactionController {
                         amount.toPlainString()+
                         senderAccount.getBankId() +
                         receiverBankId;
+
+                System.out.println("=== SIGNING TRANSACTION ===");
+                System.out.println("Sender IBAN: '" + senderAccount.getIban() + "'");
+                System.out.println("Receiver IBAN: '" + receiverIban + "'");
+                System.out.println("Amount: '" + amount.toPlainString() + "'");
+                System.out.println("Sender Bank: '" + senderAccount.getBankId() + "'");
+                System.out.println("Receiver Bank: '" + receiverBankId + "'");
+                System.out.println("Combined txData: '" + txData + "'");
+                System.out.println("Data length: " + txData.length());
 
                 String signature = pqcService.signDilithium(txData,privateKey);
 

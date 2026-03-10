@@ -200,6 +200,14 @@ public class BlockchainService {
         String hash = calculateHash(newBlock);
         newBlock.setHash(hash);
 
+        System.out.println("=== CREATING BLOCK ===");
+        System.out.println("Block number: " + newBlock.getBlockNumber());
+        System.out.println("Prev hash: " + newBlock.getPrevHash());
+        System.out.println("Proposer: " + newBlock.getProposerId());
+        System.out.println("Merkle root: " + newBlock.getMerkleRoot());
+        System.out.println("Created at: " + newBlock.getCreatedAt());
+        System.out.println("Calculated hash: " + hash);
+
         //Set signature
         String signature = signBlock(newBlock);
         newBlock.setBlockSignature(signature);
@@ -325,6 +333,7 @@ public class BlockchainService {
         for(BlockTransaction tx : block.getTransactions()){
             if(!validateTransactionSignature(tx)){
                 System.out.println("*** Validation Failure: Transaction signature invalid***");
+                System.out.println(tx.getSenderSignature());
                 return false;
             }
         }
@@ -339,6 +348,16 @@ public class BlockchainService {
                 tx.getAmount().toPlainString()+
                 tx.getSenderBankId()+
                 tx.getReceiverBankId();
+
+        System.out.println("=== VERIFYING TRANSACTION SIGNATURE ===");
+        System.out.println("Sender IBAN: '" + tx.getSenderIban() + "'");
+        System.out.println("Receiver IBAN: '" + tx.getReceiverIban() + "'");
+        System.out.println("Amount: '" + tx.getAmount().toPlainString() + "'");
+        System.out.println("Sender Bank: '" + tx.getSenderBankId() + "'");
+        System.out.println("Receiver Bank: '" + tx.getReceiverBankId() + "'");
+        System.out.println("Combined txData: '" + txData + "'");
+        System.out.println("Data length: " + txData.length());
+        System.out.println("Signature: " + tx.getSenderSignature().substring(0, 30) + "...");
 
         String signature = tx.getSenderSignature();
 
