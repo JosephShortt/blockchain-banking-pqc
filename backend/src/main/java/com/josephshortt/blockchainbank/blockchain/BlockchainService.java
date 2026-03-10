@@ -265,6 +265,19 @@ public class BlockchainService {
         String calculatedMerkle = calculateMerkleRoot(block.getTransactions());
         if(!calculatedMerkle.equals(block.getMerkleRoot())){
             System.out.println("*** Validation Failure: Merkle tree invalid***");
+            System.out.println("Block number: " + block.getBlockNumber());
+            System.out.println("Transaction count: " + block.getTransactions().size());
+            System.out.println("Calculated merkle: " + calculatedMerkle);
+            System.out.println("Stored merkle:     " + block.getMerkleRoot());
+
+            // Debug each transaction
+            for(BlockTransaction tx : block.getTransactions()) {
+                String txData = tx.getSenderIban() + tx.getReceiverIban() +
+                        tx.getAmount().toPlainString() +
+                        tx.getSenderBankId() + tx.getReceiverBankId();
+                System.out.println("  Tx data: " + txData);
+            }
+
             return false;
         }
 
@@ -272,6 +285,18 @@ public class BlockchainService {
         String hash = calculateHash(block);
         if(!hash.equals(block.getHash())){
             System.out.println("*** Validation Failure: Block hash invalid***");
+            System.out.println("Block number: " + block.getBlockNumber());
+            System.out.println("Calculated hash: " + hash);
+            System.out.println("Stored hash:     " + block.getHash());
+
+            // Debug: show the data being hashed
+            System.out.println("Block data for hash:");
+            System.out.println("  blockNumber: " + block.getBlockNumber());
+            System.out.println("  prevHash: " + block.getPrevHash());
+            System.out.println("  proposerId: " + block.getProposerId());
+            System.out.println("  merkleRoot: " + block.getMerkleRoot());
+            System.out.println("  createdAt: " + block.getCreatedAt());
+
             return false;
         }
 
