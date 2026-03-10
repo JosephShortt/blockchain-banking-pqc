@@ -18,6 +18,7 @@ import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -133,12 +134,15 @@ public class BlockchainService {
         return pqcService.hashSHA256(getBlockDataString(block));
     }
 
+    private static final DateTimeFormatter TIMESTAMP_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS");
+
     private String getBlockDataString(Block block) {
         return block.getBlockNumber() +
                 block.getPrevHash() +
                 block.getProposerId() +
                 block.getMerkleRoot() +
-                block.getCreatedAt();
+                block.getCreatedAt().format(TIMESTAMP_FORMATTER);
     }
 
 
