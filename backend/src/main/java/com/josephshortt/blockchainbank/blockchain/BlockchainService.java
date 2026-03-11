@@ -19,6 +19,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Service
@@ -185,7 +186,7 @@ public class BlockchainService {
         newBlock.setPrevHash(prevBlock.getHash());
 
         //Set createdAt
-        newBlock.setCreatedAt(LocalDateTime.now());
+        newBlock.setCreatedAt(LocalDateTime.now().truncatedTo(ChronoUnit.MICROS));
 
         //Set proposer ID
         newBlock.setProposerId(bankId);
@@ -514,9 +515,7 @@ public class BlockchainService {
     3. Get block by number
      */
 
-    private String getCurrentBankId(){
-        return "";
-    }
+
 
     public long getBlockCount(){
         return 0;
