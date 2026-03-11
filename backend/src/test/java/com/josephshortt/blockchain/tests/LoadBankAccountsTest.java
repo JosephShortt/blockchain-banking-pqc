@@ -40,7 +40,7 @@ class LoadBankAccountsTest {
         loadBankAccounts.loadBankAccounts();
 
         assertEquals(1, LoadBankAccounts.defaultBankAccounts.size());
-        assertEquals(500.00, LoadBankAccounts.defaultBankAccounts.get(0).getBalance());
+        assertEquals(new BigDecimal("500.00"), LoadBankAccounts.defaultBankAccounts.get(0).getBalance());
 
         verify(bankAccountRepository, times(1)).findAll();
     }
