@@ -1,5 +1,6 @@
 package com.josephshortt.blockchainbank.blockchain;
 
+import com.josephshortt.blockchainbank.consensus.ConsensusService;
 import com.josephshortt.blockchainbank.crypto.KeyManagementService;
 import com.josephshortt.blockchainbank.crypto.PQCService;
 import com.josephshortt.blockchainbank.models.DefaultBankAccount;
@@ -11,6 +12,7 @@ import jakarta.annotation.PostConstruct;
 import org.bouncycastle.util.encoders.Base64Encoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -50,6 +52,10 @@ public class BlockchainService {
 
     @Autowired
     private ReserveAccountRepository reserveAccountRepository;
+
+    @Autowired
+    @Lazy
+    private ConsensusService consensusService;
 
     /*
       Basic Block operations
@@ -221,7 +227,13 @@ public class BlockchainService {
 
         blockTransactionRepository.saveAll(pendingTransactions);
 
+        newBlock.setTransactions(pendingTransactions);
+
+
         System.out.println("Block " + newBlock.getBlockNumber() + " created with " + pendingTransactions.size() + " transactions");
+
+        //initiate consensus
+        consensusService.initiateConsensus(newBlock);
 
     }
 

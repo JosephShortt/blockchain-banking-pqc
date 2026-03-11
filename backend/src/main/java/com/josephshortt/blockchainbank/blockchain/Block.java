@@ -1,5 +1,6 @@
 package com.josephshortt.blockchainbank.blockchain;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -16,6 +17,7 @@ public class Block {
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "block")
+    @JsonManagedReference
     private List<BlockTransaction> transactions;
 
     private String merkleRoot;

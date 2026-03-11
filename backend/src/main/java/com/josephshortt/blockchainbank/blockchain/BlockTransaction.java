@@ -1,5 +1,6 @@
 package com.josephshortt.blockchainbank.blockchain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -29,6 +30,7 @@ public class BlockTransaction {
     //Link transaction to its block
     @ManyToOne
     @JoinColumn(name = "block_number")
+    @JsonBackReference
     private Block block;
 
     public BlockTransaction(){
