@@ -9,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -32,7 +33,7 @@ class LoadBankAccountsTest {
     void testLoadBankAccounts() {
         DefaultBankAccount acc = new DefaultBankAccount();
         acc.setCustomerId(99L);
-        acc.setBalance(500.00);
+        acc.setBalance(BigDecimal.valueOf(500.00));
 
         when(bankAccountRepository.findAll()).thenReturn(List.of(acc));
 

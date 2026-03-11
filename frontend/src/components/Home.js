@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { useUser } from "../contexts/UserContext";
 import { useEffect } from "react";
-import api from "../api";
-function Home() {
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
-  const { userData, accountData } = useUser();
+function Home() {
+  const navigate = useNavigate();
+  const { userData, accountData, selectedBank } = useUser();
   const [amount, setAmount] = useState(0);
   const [iban, setIban] = useState("");
+  const [password, setPassword] = useState("");
   const [transactions, setTransactions] = useState([]); // store transactions
 
 
@@ -16,17 +19,25 @@ function Home() {
   useEffect(() => {
     async function fetchTransactions() {
       try {
-        const response = await api.get(`/api/accounts/transactions/${accountData.iban}`);
+        const response = await axios.get(`${selectedBank.apiUrl}/api/accounts/transactions/${accountData.iban}`);
         setTransactions(response.data); // save transactions to state
       } catch (error) {
         console.error("Error loading transactions:", error);
       }
     }
 
-    if (accountData?.iban) {
+    if (accountData?.iban && selectedBank) {
       fetchTransactions();
     }
-  }, [accountData]); // runs when accountData changes (e.g., after login)
+  }, [accountData, selectedBank]); // runs when accountData changes (e.g., after login)
+
+    // Redirect if no bank selected
+  if (!selectedBank) {
+    alert("Please Select a Bank First")
+    navigate('/');
+    return null;
+  }
+
 
   if (!userData) return <p>Please log in.</p>;
 
@@ -46,11 +57,12 @@ function Home() {
 
 
     try {
-      const response = await api.post('/api/accounts/transaction',
+      const response = await axios.post(`${selectedBank.apiUrl}/api/accounts/transaction`, 
         {
           account: accountData,
           amount,
-          iban
+          iban,
+          password
         }
 
       )
@@ -63,7 +75,7 @@ function Home() {
       localStorage.setItem("accountData", JSON.stringify(response.data));
 
        // Refresh transactions after sending funds
-      const updatedTransactions = await api.get(`/api/accounts/transactions/${accountData.iban}`);
+      const updatedTransactions = await axios.get(`${selectedBank.apiUrl}/api/accounts/transactions/${accountData.iban}`);
       setTransactions(updatedTransactions.data);
 
     } catch (error) {
@@ -76,7 +88,8 @@ function Home() {
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
       <div>
         <div style={{ border: '1px solid #ccc', borderRadius: '8px', padding: '20px', marginTop: '10px', marginBottom: '20px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
-          <h2>Welcome, {userData.firstName}!</h2>
+          <h2>{selectedBank.name} - Dashboard</h2>
+          <h3>Welcome, {userData.firstName}!</h3>
           <p>Email: {userData.email}</p>
           <p>IBAN: {accountData.iban}</p>
           <p>Account ID: {accountData.accountId}</p>
@@ -91,6 +104,7 @@ function Home() {
         <input type="text" value={iban} onChange={(e) => setIban(e.target.value)} placeholder="Enter Iban of account to send to" />
 
         <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Enter amount" />
+        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter Password" />
         <button type="button"
           onClick={handleSendFunds} style={{ padding: '5px 10px' }}>Send</button>
 
