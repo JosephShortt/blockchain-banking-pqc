@@ -150,7 +150,16 @@ public class ConsensusService {
 
         // Check if already finalized
         if (block.getStatus() == BlockStatus.FINALIZED) {
-            System.out.println("Block " + blockNumber + " already finalized");
+            System.out.println("Block " + blockNumber + " already finalized by another bank");
+
+            blockchainService.processIncomingTransactions(block);
+            blockchainService.settleBankReserves(block);
+
+            // Clean up vote tracking
+            prepareVotes.remove(blockNumber);
+            commitVotes.remove(blockNumber);
+
+            System.out.println("Processed settlements for Block " + blockNumber);
             return;
         }
 
