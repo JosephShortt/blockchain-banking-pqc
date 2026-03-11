@@ -508,18 +508,6 @@ public class BlockchainService {
         System.out.println("Total settlement: €" + total + " (should be €0.00)");
     }
 
-    /*
-    Utility Methods
-    1. get current bank id
-    2. Count blocks
-    3. Get block by number
-     */
-
-
-
-    public long getBlockCount(){
-        return 0;
-    }
 
     public Optional<Block> getBlockByNumber(Long blockNumber){
         Block block = blockRepository.findByBlockNumber(blockNumber).orElseThrow();
