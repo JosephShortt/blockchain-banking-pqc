@@ -1,46 +1,138 @@
 name: CI/CD
-
 on:
   push:
     branches: [ "main" ]
-
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
+      
       # Build backend image
       - name: Build Backend Image
         run: docker build -t "${{ secrets.DOCKERHUB_USERNAME }}/bank-backend:latest" backend/
-
-
+      
       # Build frontend image
       - name: Build Frontend Image
         run: docker build -t "${{ secrets.DOCKERHUB_USERNAME }}/bank-frontend:latest" frontend/
-
+      
       - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
+      
       - name: Push Images
         run: |
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/bank-backend:latest
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/bank-frontend:latest
-
-      # SSH Deploy
-      - name: SSH Deploy
+      
+      # Deploy Bank A to OCI
+      - name: Deploy Bank A (OCI)
         uses: appleboy/ssh-action@v0.1.8
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ubuntu
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            cd ~/app/blockchain-banking-pqc
-            sudo docker compose pull
-            sudo docker compose down
-            sudo docker compose up -d
+            # Pull latest images
+            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/bank-backend:latest
+            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/bank-frontend:latest
+            
+            # Restart Bank A backend
+            sudo docker stop bank-a || true
+            sudo docker rm bank-a || true
+            sudo docker run -d \
+              --name bank-a \
+              --network host \
+              --restart unless-stopped \
+              -e SPRING_PROFILES_ACTIVE=dev \
+              -e SERVER_PORT=8443 \
+              -e BANK_ID=bank-a \
+              -e BANK_NAME="Bank A" \
+              -e DB_SCHEMA=bank_a \
+              -e DB_HOST=localhost \
+              -e DB_NAME=blockchainbankdatabase \
+              -e DB_USER=postgres \
+              -e DB_PASSWORD=user \
+              -e SERVER_SSL_ENABLED=false \
+              -e BANK_A_URL=http://141.147.73.104:8443 \
+              -e BANK_B_URL=http://51.20.64.198:8443 \
+              -e BANK_C_URL=http://13.53.205.111:8443 \
+              ${{ secrets.DOCKERHUB_USERNAME }}/bank-backend:latest
+            
+            # Restart frontend
+            sudo docker stop frontend || true
+            sudo docker rm frontend || true
+            sudo docker run -d \
+              --name frontend \
+              --restart unless-stopped \
+              -p 3000:80 \
+              ${{ secrets.DOCKERHUB_USERNAME }}/bank-frontend:latest
+      
+      # Deploy Bank B to AWS
+      - name: Deploy Bank B (AWS)
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.AWS_BANK_B_IP }}
+          username: ubuntu
+          key: ${{ secrets.AWS_BANK_B_SSH_KEY }}
+          script: |
+            # Pull latest image
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/bank-backend:latest
+            
+            # Restart Bank B
+            docker stop bank-b || true
+            docker rm bank-b || true
+            docker run -d \
+              --name bank-b \
+              --network host \
+              --restart unless-stopped \
+              -e SPRING_PROFILES_ACTIVE=dev \
+              -e SERVER_PORT=8443 \
+              -e BANK_ID=bank-b \
+              -e BANK_NAME="Bank B" \
+              -e DB_SCHEMA=bank_b \
+              -e DB_HOST=localhost \
+              -e DB_NAME=blockchainbankdatabase \
+              -e DB_USER=postgres \
+              -e DB_PASSWORD=user \
+              -e SERVER_SSL_ENABLED=false \
+              -e BANK_A_URL=http://141.147.73.104:8443 \
+              -e BANK_B_URL=http://51.20.64.198:8443 \
+              -e BANK_C_URL=http://13.53.205.111:8443 \
+              ${{ secrets.DOCKERHUB_USERNAME }}/bank-backend:latest
+      
+      # Deploy Bank C to AWS
+      - name: Deploy Bank C (AWS)
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.AWS_BANK_C_IP }}
+          username: ubuntu
+          key: ${{ secrets.AWS_BANK_C_SSH_KEY }}
+          script: |
+            # Pull latest image
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/bank-backend:latest
+            
+            # Restart Bank C
+            docker stop bank-c || true
+            docker rm bank-c || true
+            docker run -d \
+              --name bank-c \
+              --network host \
+              --restart unless-stopped \
+              -e SPRING_PROFILES_ACTIVE=dev \
+              -e SERVER_PORT=8443 \
+              -e BANK_ID=bank-c \
+              -e BANK_NAME="Bank C" \
+              -e DB_SCHEMA=bank_c \
+              -e DB_HOST=localhost \
+              -e DB_NAME=blockchainbankdatabase \
+              -e DB_USER=postgres \
+              -e DB_PASSWORD=user \
+              -e SERVER_SSL_ENABLED=false \
+              -e BANK_A_URL=http://141.147.73.104:8443 \
+              -e BANK_B_URL=http://51.20.64.198:8443 \
+              -e BANK_C_URL=http://13.53.205.111:8443 \
+              ${{ secrets.DOCKERHUB_USERNAME }}/bank-backend:latest
