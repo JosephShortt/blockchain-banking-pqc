@@ -11,8 +11,8 @@ function BankSelection() {
      const banks = isProduction ? [
         // Production - use actual server IPs and domain
         { id: 'bank-a', name: 'Bank A', apiUrl: 'https://blockchainbank.duckdns.org:8443' },
-        { id: 'bank-b', name: 'Bank B', apiUrl: 'https://blockchainbank.duckdns.org/api/bank-b' },
-        { id: 'bank-c', name: 'Bank C', apiUrl: 'https://blockchainbank.duckdns.org/api/bank-c' }
+        { id: 'bank-b', name: 'Bank B', apiUrl: 'https://blockchainbank.duckdns.org/bank-b' },
+        { id: 'bank-c', name: 'Bank C', apiUrl: 'https://blockchainbank.duckdns.org/bank-c' }
     ] : [
         // Development - use localhost
         { id: 'bank-a', name: 'Bank A', apiUrl: 'https://localhost:8443' },
