@@ -5,7 +5,16 @@ function BankSelection() {
     const navigate = useNavigate();
     const { setSelectedBank } = useUser();
 
-    const banks = [
+    const isProduction = process.env.NODE_ENV === 'production';
+
+
+     const banks = isProduction ? [
+        // Production - use actual server IPs
+        { id: 'bank-a', name: 'Bank A', apiUrl: 'http://141.147.73.104:8443' },
+        { id: 'bank-b', name: 'Bank B', apiUrl: 'http://51.20.64.198:8443' },
+        { id: 'bank-c', name: 'Bank C', apiUrl: 'http://13.53.205.111:8443' }
+    ] : [
+        // Development - use localhost
         { id: 'bank-a', name: 'Bank A', apiUrl: 'https://localhost:8443' },
         { id: 'bank-b', name: 'Bank B', apiUrl: 'https://localhost:8444' },
         { id: 'bank-c', name: 'Bank C', apiUrl: 'https://localhost:8445' }
