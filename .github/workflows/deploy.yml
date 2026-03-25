@@ -59,10 +59,10 @@ jobs:
               -e DB_PASSWORD=user \
               -e SERVER_SSL_ENABLED=true \
               -e SERVER_SSL_KEY_STORE=/app/keystore-prod.p12 \
-              -e SERVER_SSL_KEY_STORE_PASSWORD=deleted \
+              -e SERVER_SSL_KEY_STORE_PASSWORD=${{ secrets.SSL_KEYSTORE_PASSWORD }} \
               -e SERVER_SSL_KEY_STORE_TYPE=PKCS12 \
               -e SERVER_SSL_KEY_ALIAS=tomcat \
-              -e BANK_A_URL=https://141.147.73.104:8443 \
+              -e BANK_A_URL=https://blockchainbank.duckdns.org:8443 \
               -e BANK_B_URL=http://51.20.64.198:8443 \
               -e BANK_C_URL=http://13.53.205.111:8443 \
               ${{ secrets.DOCKERHUB_USERNAME }}/bank-backend:latest
@@ -104,7 +104,7 @@ jobs:
               -e DB_USER=postgres \
               -e DB_PASSWORD=user \
               -e SERVER_SSL_ENABLED=false \
-              -e BANK_A_URL=http://141.147.73.104:8443 \
+              -e BANK_A_URL=https://blockchainbank.duckdns.org:8443 \
               -e BANK_B_URL=http://51.20.64.198:8443 \
               -e BANK_C_URL=http://13.53.205.111:8443 \
               ${{ secrets.DOCKERHUB_USERNAME }}/bank-backend:latest
@@ -137,7 +137,7 @@ jobs:
               -e DB_USER=postgres \
               -e DB_PASSWORD=user \
               -e SERVER_SSL_ENABLED=false \
-              -e BANK_A_URL=http://141.147.73.104:8443 \
+              -e BANK_A_URL=https://blockchainbank.duckdns.org:8443 \
               -e BANK_B_URL=http://51.20.64.198:8443 \
               -e BANK_C_URL=http://13.53.205.111:8443 \
               ${{ secrets.DOCKERHUB_USERNAME }}/bank-backend:latest
