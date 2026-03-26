@@ -121,10 +121,13 @@ public class BlockchainService {
     }
 
     private void generateBankKeys() throws Exception {
-        String[] banks = {"bank-a" , "bank-b", "bank-c"};
+        String[] banks = {"bank-a", "bank-b", "bank-c"};
 
         for(String bankId : banks){
-            KeyPair keys = pqcService.generateDilithiumKeyPair();
+            SecureRandom seededRandom = SecureRandom.getInstance("SHA1PRNG");
+            seededRandom.setSeed(bankId.getBytes());
+
+            KeyPair keys = pqcService.generateDilithiumKeyPair(seededRandom);
 
             String publicKey = Base64.getEncoder().encodeToString(keys.getPublic().getEncoded());
             String privateKey = Base64.getEncoder().encodeToString(keys.getPrivate().getEncoded());
@@ -135,7 +138,7 @@ public class BlockchainService {
             bankKeys.setBankPrivateKey(privateKey);
 
             bankKeysRepository.save(bankKeys);
-            System.out.println("Generated Keys for "+bankId);
+            System.out.println("Generated Keys for " + bankId);
         }
     }
 
@@ -269,7 +272,7 @@ public class BlockchainService {
     private String signBlock(Block block) throws Exception {
         String data = getBlockDataString(block);
         System.out.println("Block data being signed: " + data);
-        
+
         BankKeys keys = bankKeysRepository.findByBankId(block.getProposerId()).orElseThrow();
         byte[] bytes = Base64.getDecoder().decode(keys.getBankPrivateKey());
 

@@ -15,10 +15,10 @@ public class PQCService {
     }
 
     //Generate dilithium key pair
-    public KeyPair generateDilithiumKeyPair() throws Exception {
+    public KeyPair generateDilithiumKeyPair(SecureRandom random) throws Exception {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("Dilithium","BCPQC");
         //Using dilithium 5 instead of 3 for max security
-        keyGen.initialize(DilithiumParameterSpec.dilithium5);
+        keyGen.initialize(DilithiumParameterSpec.dilithium5, random);
         return keyGen.generateKeyPair();
     }
 
