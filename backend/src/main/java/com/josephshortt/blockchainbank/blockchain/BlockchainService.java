@@ -72,41 +72,16 @@ public class BlockchainService {
     @PostConstruct
     public void initialiseChain() throws Exception {
         if(blockRepository.count() == 0){
-            if(bankId.equals("bank-a")){
-                Block genesis = new Block();
-                genesis.setBlockNumber(0L);
-                genesis.setPrevHash("0");
-                genesis.setProposerId("System");
-                genesis.setStatus(BlockStatus.FINALIZED);
-                genesis.setMerkleRoot("");
-                genesis.setCreatedAt(LocalDateTime.now());
-                genesis.setHash(calculateHash(genesis));
-
-                blockRepository.save(genesis);
-                System.out.println("**Genesis Block Created**");
-            }
-            else{
-                // Bank B and C fetch genesis from Bank A
-                try {
-                    RestTemplate rt = new RestTemplate();
-                    Block genesis = rt.getForObject(bankAUrl + "/api/blockchain/block/0", Block.class);
-                    blockRepository.save(genesis);
-                    System.out.println("**Genesis Block fetched from Bank A**");
-                } catch (Exception e) {
-                    System.err.println("Failed to fetch genesis from Bank A: " + e.getMessage());
-                    // Fallback - create with fixed timestamp so hash matches
-                    Block genesis = new Block();
-                    genesis.setBlockNumber(0L);
-                    genesis.setPrevHash("0");
-                    genesis.setProposerId("System");
-                    genesis.setStatus(BlockStatus.FINALIZED);
-                    genesis.setMerkleRoot("");
-                    genesis.setCreatedAt(LocalDateTime.parse("2026-01-01T00:00:00.000000"));
-                    genesis.setHash(calculateHash(genesis));
-                    blockRepository.save(genesis);
-                }
-            }
-
+            Block genesis = new Block();
+            genesis.setBlockNumber(0L);
+            genesis.setPrevHash("0");
+            genesis.setProposerId("System");
+            genesis.setStatus(BlockStatus.FINALIZED);
+            genesis.setMerkleRoot("");
+            genesis.setCreatedAt(LocalDateTime.parse("2026-01-01T00:00:00.000000"));
+            genesis.setHash(calculateHash(genesis));
+            blockRepository.save(genesis);
+            System.out.println("**Genesis Block Created**");
         }
 
         if(bankKeysRepository.count() == 0){
