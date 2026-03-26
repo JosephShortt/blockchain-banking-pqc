@@ -61,7 +61,7 @@ public class ConsensusService {
 
     public void handleProposal(Block block, String fromBankId) {
         System.out.println("Received PROPOSE for Block " + block.getBlockNumber() + " from " + fromBankId);
-
+        System.out.println("Transactions received: " + (block.getTransactions() == null ? "NULL" : block.getTransactions().size()));
         try {
             // Validate the proposed block
             if (blockchainService.validateBlock(block)) {
