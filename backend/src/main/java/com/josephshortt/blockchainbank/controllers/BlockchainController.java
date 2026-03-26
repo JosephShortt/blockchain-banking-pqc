@@ -69,4 +69,19 @@ public class BlockchainController {
             return ResponseEntity.status(500).body("Error: " + e.getMessage());
         }
     }
+
+    @GetMapping("/block/{blockNumber}")
+    public ResponseEntity<?> getBlock(@PathVariable Long blockNumber) {
+        try {
+            Block block = blockchainService.getBlockByNumber(blockNumber).orElseThrow();
+            return ResponseEntity.ok(block);
+        } catch (Exception e) {
+            return ResponseEntity.status(404).body("Block not found");
+        }
+    }
+
+    @GetMapping("/chain")
+    public ResponseEntity<?> getChain() {
+        return ResponseEntity.ok(blockRepository.findAll());
+    }
 }
