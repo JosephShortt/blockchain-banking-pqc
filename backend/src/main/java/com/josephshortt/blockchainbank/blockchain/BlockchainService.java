@@ -342,6 +342,7 @@ public class BlockchainService {
         String blockData = getBlockDataString(block);
 
         if(!pqcService.verifyDilithium(blockData,block.getBlockSignature(), proposerPublicKey)){
+
             System.out.println("*** Validation Failure:Block signature invalid***");
             return false;
         }
