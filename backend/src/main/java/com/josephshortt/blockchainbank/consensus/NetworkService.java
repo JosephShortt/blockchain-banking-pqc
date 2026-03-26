@@ -65,25 +65,20 @@ public class NetworkService {
         }
     }
 
-    private List<String> getOtherBankUrls() {
-        List<String> allBanks = Arrays.asList(bankAUrl, bankBUrl, bankCUrl);
-        List<String> otherBanks = new ArrayList<>();
 
-        for (String url : allBanks) {
-            // Don't send to ourselves
-            if (!url.contains(getCurrentPort())) {
-                otherBanks.add(url);
+    private List<String> getOtherBankUrls() {
+        Map<String, String> allBanks = new HashMap<>();
+        allBanks.put("bank-a", bankAUrl);
+        allBanks.put("bank-b", bankBUrl);
+        allBanks.put("bank-c", bankCUrl);
+
+        List<String> otherBanks = new ArrayList<>();
+        for (Map.Entry<String, String> entry : allBanks.entrySet()) {
+            if (!entry.getKey().equals(bankId)) {
+                otherBanks.add(entry.getValue());
             }
         }
-
         return otherBanks;
-    }
-
-    private String getCurrentPort() {
-        if (bankId.equals("bank-a")) return "8443";
-        if (bankId.equals("bank-b")) return "8444";
-        if (bankId.equals("bank-c")) return "8445";
-        return "8443";
     }
 
     private String getEndpointForMessageType(ConsensusMessage.MessageType type) {
