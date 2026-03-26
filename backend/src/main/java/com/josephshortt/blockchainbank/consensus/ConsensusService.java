@@ -62,6 +62,8 @@ public class ConsensusService {
     public void handleProposal(Block block, String fromBankId) {
         System.out.println("Received PROPOSE for Block " + block.getBlockNumber() + " from " + fromBankId);
         System.out.println("Transactions received: " + (block.getTransactions() == null ? "NULL" : block.getTransactions().size()));
+
+
         try {
             // Validate the proposed block
             if (blockchainService.validateBlock(block)) {
@@ -69,8 +71,15 @@ public class ConsensusService {
 
                 // Save block if we don't have it yet
                 if (blockRepository.findByBlockNumber(block.getBlockNumber()).isEmpty()) {
+                    if (block.getTransactions() != null) {
+                        for (BlockTransaction tx : block.getTransactions()) {
+                            tx.setTxId(null); // let DB assign new ID
+                            tx.setBlock(block);
+                        }
+                    }
                     blockRepository.save(block);
                 }
+
 
                 // Send PREPARE vote to all banks
                 ConsensusMessage prepareMsg = new ConsensusMessage(
@@ -146,7 +155,16 @@ public class ConsensusService {
     // ========== STEP 4: FINALIZE =========
 
     private void finalizeBlock(Long blockNumber) {
-        Block block = blockchainService.getBlockByNumber(blockNumber).orElseThrow();
+        Optional<Block> blockOpt = blockchainService.getBlockByNumber(blockNumber);
+
+        if (blockOpt.isEmpty()) {
+            System.out.println("Block " + blockNumber + " not found locally - skipping finalization");
+            prepareVotes.remove(blockNumber);
+            commitVotes.remove(blockNumber);
+            return;
+        }
+
+        Block block = blockOpt.get();
 
         // Check if already finalized
         if (block.getStatus() == BlockStatus.FINALIZED) {
