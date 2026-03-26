@@ -268,7 +268,8 @@ public class BlockchainService {
 
     private String signBlock(Block block) throws Exception {
         String data = getBlockDataString(block);
-
+        System.out.println("Block data being signed: " + data);
+        
         BankKeys keys = bankKeysRepository.findByBankId(block.getProposerId()).orElseThrow();
         byte[] bytes = Base64.getDecoder().decode(keys.getBankPrivateKey());
 
@@ -340,6 +341,8 @@ public class BlockchainService {
         PublicKey proposerPublicKey = keyManagementService.decodePublicKey(proposerKeys.getBankPublicKey());
 
         String blockData = getBlockDataString(block);
+        System.out.println("Block data being verified: " + blockData);
+        System.out.println("Block signature length: " + block.getBlockSignature().length());
 
         if(!pqcService.verifyDilithium(blockData,block.getBlockSignature(), proposerPublicKey)){
 
