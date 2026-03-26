@@ -18,13 +18,13 @@ public class NetworkService {
     @Value("${bank.id}")
     private String bankId;
 
-    @Value("${consensus.bank-a.url:https://localhost:8443}")
+    @Value("${BANK_A_URL:https://localhost:8443}")
     private String bankAUrl;
 
-    @Value("${consensus.bank-b.url:https://localhost:8444}")
+    @Value("${BANK_B_URL:http://localhost:8444}")
     private String bankBUrl;
 
-    @Value("${consensus.bank-c.url:https://localhost:8445}")
+    @Value("${BANK_C_URL:http://localhost:8445}")
     private String bankCUrl;
 
     private RestTemplate restTemplate;
