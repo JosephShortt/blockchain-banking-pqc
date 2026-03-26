@@ -14,7 +14,14 @@ public class PQCService {
         Security.addProvider(new BouncyCastlePQCProvider());
     }
 
-    //Generate dilithium key pair
+
+    public KeyPair generateDilithiumKeyPair() throws Exception {
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("Dilithium", "BCPQC");
+        keyGen.initialize(DilithiumParameterSpec.dilithium5);
+        return keyGen.generateKeyPair();
+    }
+
+    //Generate dilithium key pair with seed
     public KeyPair generateDilithiumKeyPair(SecureRandom random) throws Exception {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("Dilithium","BCPQC");
         //Using dilithium 5 instead of 3 for max security
