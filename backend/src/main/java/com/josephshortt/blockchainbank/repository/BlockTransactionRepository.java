@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface BlockTransactionRepository extends JpaRepository<BlockTransaction, Long> {
     List<BlockTransaction> findByBlockIsNull();
-
+    List<BlockTransaction> findByBlockBlockNumber(Long blockNumber);
 }
