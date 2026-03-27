@@ -507,13 +507,9 @@ public class BlockchainService {
     3. Settle Bank reserves
      */
 
-    public void processIncomingTransactions(Block finalizedBlock){
+    public void processIncomingTransactions(Block finalizedBlock, List<BlockTransaction> transactions){
 
-        List<BlockTransaction> allTxs = blockTransactionRepository.findByBlockBlockNumber(finalizedBlock.getBlockNumber());
-
-        String currentBankId = bankId;
-
-        List<BlockTransaction> incomingTxs = allTxs
+        List<BlockTransaction> incomingTxs = transactions
                 .stream()
                 .filter(tx -> tx.getReceiverBankId().equals(bankId))
                 .toList();
@@ -561,7 +557,7 @@ public class BlockchainService {
         return netPositions;
     }
 
-    public void settleBankReserves(Block block) {
+    public void settleBankReserves(Block block, List<BlockTransaction> transactions) {
         // Calculate net positions for each bank
         Map<String, BigDecimal> netPositions = calculateNetPositions(block);
 

@@ -41,6 +41,7 @@ public class BlockchainController {
         ));
     }
 
+    /*
     @PostMapping("/finalize-block/{blockNumber}")
     public ResponseEntity<?> finalizeBlock(@PathVariable Long blockNumber) {
         try {
@@ -69,6 +70,8 @@ public class BlockchainController {
             return ResponseEntity.status(500).body("Error: " + e.getMessage());
         }
     }
+     */
+
 
     @GetMapping("/block/{blockNumber}")
     public ResponseEntity<?> getBlock(@PathVariable Long blockNumber) {
