@@ -173,7 +173,7 @@ public class ConsensusService {
             blockchainService.processIncomingTransactions(block);
             blockchainService.settleBankReserves(block);
             blockchainService.markLocalTransactionsAsProcessed(block);
-            
+
             // Clean up vote tracking
             prepareVotes.remove(blockNumber);
             commitVotes.remove(blockNumber);
