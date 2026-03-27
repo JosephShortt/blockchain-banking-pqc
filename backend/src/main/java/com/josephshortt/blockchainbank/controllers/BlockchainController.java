@@ -84,4 +84,9 @@ public class BlockchainController {
     public ResponseEntity<?> getChain() {
         return ResponseEntity.ok(blockRepository.findAll());
     }
+
+    @GetMapping("/pending-transactions")
+    public ResponseEntity<?> getPendingTransactions() {
+        return ResponseEntity.ok(blockchainService.getPendingTransactions());
+    }
 }
