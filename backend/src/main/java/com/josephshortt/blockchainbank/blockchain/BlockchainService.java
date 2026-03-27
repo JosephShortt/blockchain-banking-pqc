@@ -210,7 +210,9 @@ public class BlockchainService {
         }
 
         // Fetch pending transactions from all banks
-        List<BlockTransaction> pendingTransactions = new ArrayList<>(getPendingTransactions());
+        List<BlockTransaction> ownPendingTransactions = new ArrayList<>(getPendingTransactions());
+
+        List<BlockTransaction> allTransactions = new ArrayList<>(ownPendingTransactions);
 
         String[] allBankUrls = {bankAUrl, bankBUrl, bankCUrl};
         for (String url : allBankUrls) {
@@ -219,13 +221,13 @@ public class BlockchainService {
                 for (BlockTransaction tx : remoteTxs) {
                     tx.setTxId(null);
                 }
-                pendingTransactions.addAll(remoteTxs);
+                allTransactions.addAll(remoteTxs);
             }
         }
 
 
 
-        if (pendingTransactions.isEmpty()) {
+        if (allTransactions.isEmpty()) {
             System.out.println("No pending transactions: Skipping block creation");
             return;
         }
@@ -238,7 +240,7 @@ public class BlockchainService {
         newBlock.setProposerId(bankId);
         newBlock.setStatus(BlockStatus.PROPOSED);
 
-        String root = calculateMerkleRoot(pendingTransactions);
+        String root = calculateMerkleRoot(allTransactions);
         newBlock.setMerkleRoot(root);
 
         String hash = calculateHash(newBlock);
@@ -257,13 +259,13 @@ public class BlockchainService {
 
         blockRepository.save(newBlock);
 
-        for (BlockTransaction tx : pendingTransactions) {
+        for (BlockTransaction tx : ownPendingTransactions) {
             tx.setBlock(newBlock);
         }
-        blockTransactionRepository.saveAll(pendingTransactions);
-        newBlock.setTransactions(pendingTransactions);
+        blockTransactionRepository.saveAll(ownPendingTransactions);
+        newBlock.setTransactions(allTransactions);
 
-        System.out.println("Block " + newBlock.getBlockNumber() + " created with " + pendingTransactions.size() + " transactions");
+        System.out.println("Block " + newBlock.getBlockNumber() + " created with " + allTransactions.size() + " transactions");
 
         consensusService.initiateConsensus(newBlock);
     }
@@ -306,6 +308,20 @@ public class BlockchainService {
         }
     }
 
+    public void markLocalTransactionsAsProcessed(Block block) {
+        List<BlockTransaction> pending = blockTransactionRepository.findByBlockIsNull();
+        for (BlockTransaction localTx : pending) {
+            for (BlockTransaction blockTx : block.getTransactions()) {
+                if (localTx.getSenderIban().equals(blockTx.getSenderIban()) &&
+                        localTx.getReceiverIban().equals(blockTx.getReceiverIban()) &&
+                        localTx.getAmount().compareTo(blockTx.getAmount()) == 0) {
+                    localTx.setBlock(block);
+                    blockTransactionRepository.save(localTx);
+                    break;
+                }
+            }
+        }
+    }
 
     private String calculateMerkleRoot(List<BlockTransaction> transactions) throws Exception {
         if(transactions ==null || transactions.isEmpty()){
