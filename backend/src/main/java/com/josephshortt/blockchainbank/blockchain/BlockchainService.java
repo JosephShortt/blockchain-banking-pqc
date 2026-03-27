@@ -308,18 +308,16 @@ public class BlockchainService {
         }
     }
 
+
     public void markLocalTransactionsAsProcessed(Block block) {
+        System.out.println("=== MARKING LOCAL TRANSACTIONS AS PROCESSED ===");
         List<BlockTransaction> pending = blockTransactionRepository.findByBlockIsNull();
+        System.out.println("Pending transactions found: " + pending.size());
+
         for (BlockTransaction localTx : pending) {
-            for (BlockTransaction blockTx : block.getTransactions()) {
-                if (localTx.getSenderIban().equals(blockTx.getSenderIban()) &&
-                        localTx.getReceiverIban().equals(blockTx.getReceiverIban()) &&
-                        localTx.getAmount().compareTo(blockTx.getAmount()) == 0) {
-                    localTx.setBlock(block);
-                    blockTransactionRepository.save(localTx);
-                    break;
-                }
-            }
+            localTx.setBlock(block);
+            blockTransactionRepository.save(localTx);
+            System.out.println("Marked tx " + localTx.getTxId() + " as processed in block " + block.getBlockNumber());
         }
     }
 
