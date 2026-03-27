@@ -28,7 +28,7 @@ public class ConsensusService {
     // Key: blockNumber, Value: Set of bankIds that voted
     private Map<Long, Set<String>> prepareVotes = new ConcurrentHashMap<>();
     private Map<Long, Set<String>> commitVotes = new ConcurrentHashMap<>();
-
+    private Map<Long, List<BlockTransaction>> pendingBlockTransactions = new ConcurrentHashMap<>();
     private final int TOTAL_BANKS = 3;  // bank-a, bank-b, bank-c
     private final int REQUIRED_VOTES = 2;  // 2f+1 where f=1 (can tolerate 1 fault)
 
@@ -68,6 +68,11 @@ public class ConsensusService {
             // Validate the proposed block
             if (blockchainService.validateBlock(block)) {
                 System.out.println("Block " + block.getBlockNumber() + " is valid");
+
+                // Store transactions for finalization
+                if (block.getTransactions() != null) {
+                    pendingBlockTransactions.put(block.getBlockNumber(), block.getTransactions());
+                }
 
                 // Save block if we don't have it yet
                 if (blockRepository.findByBlockNumber(block.getBlockNumber()).isEmpty()) {
@@ -161,22 +166,26 @@ public class ConsensusService {
             System.out.println("Block " + blockNumber + " not found locally - skipping finalization");
             prepareVotes.remove(blockNumber);
             commitVotes.remove(blockNumber);
+            pendingBlockTransactions.remove(blockNumber);
             return;
         }
 
         Block block = blockOpt.get();
+        List<BlockTransaction> txs = pendingBlockTransactions.getOrDefault(blockNumber, new ArrayList<>());
+
 
         // Check if already finalized
         if (block.getStatus() == BlockStatus.FINALIZED) {
             System.out.println("Block " + blockNumber + " already finalized by another bank");
 
             blockchainService.markLocalTransactionsAsProcessed(block);
-            blockchainService.processIncomingTransactions(block);
-            blockchainService.settleBankReserves(block);
+            blockchainService.processIncomingTransactions(block, txs);
+            blockchainService.settleBankReserves(block, txs);
 
             // Clean up vote tracking
             prepareVotes.remove(blockNumber);
             commitVotes.remove(blockNumber);
+            pendingBlockTransactions.remove(blockNumber);
 
             System.out.println("Processed settlements for Block " + blockNumber);
             return;
@@ -188,16 +197,17 @@ public class ConsensusService {
         block.setStatus(BlockStatus.FINALIZED);
         blockRepository.save(block);
 
-        
+
         blockchainService.markLocalTransactionsAsProcessed(block);
         // Process settlements
-        blockchainService.processIncomingTransactions(block);
-        blockchainService.settleBankReserves(block);
+        blockchainService.processIncomingTransactions(block, txs);
+        blockchainService.settleBankReserves(block, txs);
 
 
         // Clean up vote tracking
         prepareVotes.remove(blockNumber);
         commitVotes.remove(blockNumber);
+        pendingBlockTransactions.remove(blockNumber);
 
         System.out.println("Block " + blockNumber + " finalized by consensus!");
     }
