@@ -193,8 +193,9 @@ public class BlockchainService {
         Block latestBlock = getLatestBlock().orElseThrow();
         Long nextBlockNumber = latestBlock.getBlockNumber() + 1;
 
+
         String[] bankOrder = {"bank-a", "bank-b", "bank-c"};
-        String expectedProposer = bankOrder[(int)(nextBlockNumber % 3)];
+        String expectedProposer = bankOrder[(int)((nextBlockNumber - 1) % 3)];
 
         if (!expectedProposer.equals(bankId)) {
             System.out.println("Not our turn to propose block " + nextBlockNumber + " - expected " + expectedProposer);
