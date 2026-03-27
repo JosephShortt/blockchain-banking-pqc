@@ -16,8 +16,13 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import java.math.BigDecimal;
 import java.security.*;
+import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.time.LocalDateTime;
@@ -60,6 +65,12 @@ public class BlockchainService {
 
     @Value("${BANK_A_URL:https://localhost:8443}")
     private String bankAUrl;
+
+    @Value("${BANK_B_URL:http://localhost:8444}")
+    private String bankBUrl;
+
+    @Value("${BANK_C_URL:http://localhost:8445}")
+    private String bankCUrl;
 
     /*
       Basic Block operations
@@ -178,38 +189,60 @@ public class BlockchainService {
      */
 
     public void createBlock() throws Exception {
-        List<BlockTransaction> pendingTransactions = getPendingTransactions();
+        // Check if it's our turn to propose
+        Block latestBlock = getLatestBlock().orElseThrow();
+        Long nextBlockNumber = latestBlock.getBlockNumber() + 1;
 
-        if(pendingTransactions.isEmpty()){
+        String[] bankOrder = {"bank-a", "bank-b", "bank-c"};
+        String expectedProposer = bankOrder[(int)(nextBlockNumber % 3)];
+
+        if (!expectedProposer.equals(bankId)) {
+            System.out.println("Not our turn to propose block " + nextBlockNumber + " - expected " + expectedProposer);
+            return;
+        }
+
+        // Check previous block is finalized
+        if (latestBlock.getStatus() != BlockStatus.FINALIZED) {
+            System.out.println("Cannot create block " + nextBlockNumber +
+                    " - block " + latestBlock.getBlockNumber() + " not finalized yet");
+            return;
+        }
+
+        // Fetch pending transactions from all banks
+        List<BlockTransaction> pendingTransactions = new ArrayList<>(getPendingTransactions());
+
+        String[] allBankUrls = {bankAUrl, bankBUrl, bankCUrl};
+        for (String url : allBankUrls) {
+            if (!url.equals(getOwnUrl())) {
+                pendingTransactions.addAll(fetchPendingFromBank(url));
+            }
+        }
+
+        // Deduplicate by txId
+        Map<Long, BlockTransaction> deduped = new LinkedHashMap<>();
+        for (BlockTransaction tx : pendingTransactions) {
+            if (tx.getTxId() != null) {
+                deduped.put(tx.getTxId(), tx);
+            }
+        }
+        pendingTransactions = new ArrayList<>(deduped.values());
+
+        if (pendingTransactions.isEmpty()) {
             System.out.println("No pending transactions: Skipping block creation");
             return;
         }
-        Block prevBlock = getLatestBlock().orElseThrow();
-        if(prevBlock.getStatus() != BlockStatus.FINALIZED){
-            System.out.println("Cannot create block " + (prevBlock.getBlockNumber() + 1) +
-                    " - block " + prevBlock.getBlockNumber() + " not finalized yet");
-            return;
-        }
-        //Continue to create block if previous checks pass
+
+        // Build the block
         Block newBlock = new Block();
-
-        //Set block number and previous hash
-        newBlock.setBlockNumber(prevBlock.getBlockNumber()+1);
-        newBlock.setPrevHash(prevBlock.getHash());
-
-        //Set createdAt
+        newBlock.setBlockNumber(nextBlockNumber);
+        newBlock.setPrevHash(latestBlock.getHash());
         newBlock.setCreatedAt(LocalDateTime.now().truncatedTo(ChronoUnit.MICROS));
-
-        //Set proposer ID
         newBlock.setProposerId(bankId);
         newBlock.setStatus(BlockStatus.PROPOSED);
 
-
-        //Set merkle root
         String root = calculateMerkleRoot(pendingTransactions);
         newBlock.setMerkleRoot(root);
 
-        //Set block hash
         String hash = calculateHash(newBlock);
         newBlock.setHash(hash);
 
@@ -221,26 +254,58 @@ public class BlockchainService {
         System.out.println("Created at: " + newBlock.getCreatedAt());
         System.out.println("Calculated hash: " + hash);
 
-        //Set signature
         String signature = signBlock(newBlock);
         newBlock.setBlockSignature(signature);
 
         blockRepository.save(newBlock);
 
-        for(BlockTransaction tx : pendingTransactions){
+        for (BlockTransaction tx : pendingTransactions) {
             tx.setBlock(newBlock);
         }
-
         blockTransactionRepository.saveAll(pendingTransactions);
-
         newBlock.setTransactions(pendingTransactions);
-
 
         System.out.println("Block " + newBlock.getBlockNumber() + " created with " + pendingTransactions.size() + " transactions");
 
-        //initiate consensus
         consensusService.initiateConsensus(newBlock);
+    }
 
+    private String getOwnUrl() {
+        if (bankId.equals("bank-a")) return bankAUrl;
+        if (bankId.equals("bank-b")) return bankBUrl;
+        return bankCUrl;
+    }
+
+    private List<BlockTransaction> fetchPendingFromBank(String bankUrl) {
+        try {
+            RestTemplate rt = createTrustAllRestTemplate();
+            BlockTransaction[] txs = rt.getForObject(bankUrl + "/api/blockchain/pending-transactions", BlockTransaction[].class);
+            if (txs != null) {
+                return new ArrayList<>(Arrays.asList(txs));
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to fetch pending transactions from " + bankUrl + ": " + e.getMessage());
+        }
+        return new ArrayList<>();
+    }
+
+    private RestTemplate createTrustAllRestTemplate() {
+        try {
+            TrustManager[] trustAllCerts = new TrustManager[]{
+                    new X509TrustManager() {
+                        public X509Certificate[] getAcceptedIssuers() { return null; }
+                        public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+                        public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+                    }
+            };
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+            HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
+            return new RestTemplate();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create RestTemplate", e);
+        }
     }
 
 
