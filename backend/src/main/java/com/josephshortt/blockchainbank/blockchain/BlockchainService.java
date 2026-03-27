@@ -508,9 +508,12 @@ public class BlockchainService {
      */
 
     public void processIncomingTransactions(Block finalizedBlock){
+
+        List<BlockTransaction> allTxs = blockTransactionRepository.findByBlockBlockNumber(finalizedBlock.getBlockNumber());
+
         String currentBankId = bankId;
 
-        List<BlockTransaction> incomingTxs = finalizedBlock.getTransactions()
+        List<BlockTransaction> incomingTxs = allTxs
                 .stream()
                 .filter(tx -> tx.getReceiverBankId().equals(bankId))
                 .toList();
@@ -546,18 +549,13 @@ public class BlockchainService {
     }
 
     public Map<String, BigDecimal> calculateNetPositions(Block block) {
+        List<BlockTransaction> allTxs = blockTransactionRepository.findByBlockBlockNumber(block.getBlockNumber());
         Map<String, BigDecimal> netPositions = new HashMap<>();
 
-        for (BlockTransaction tx : block.getTransactions()) {
-            String senderBank = tx.getSenderBankId();
-            String receiverBank = tx.getReceiverBankId();
-            BigDecimal amount = tx.getAmount();
+        for (BlockTransaction tx : allTxs) {
+            netPositions.merge(tx.getSenderBankId(), tx.getAmount().negate(), BigDecimal::add);
+            netPositions.merge(tx.getReceiverBankId(), tx.getAmount(), BigDecimal::add);
 
-            // Sender loses money
-            netPositions.merge(senderBank, amount.negate(), BigDecimal::add);
-
-            // Receiver gains money
-            netPositions.merge(receiverBank, amount, BigDecimal::add);
         }
 
         return netPositions;
