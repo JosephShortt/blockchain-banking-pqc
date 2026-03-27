@@ -214,19 +214,16 @@ public class BlockchainService {
 
         String[] allBankUrls = {bankAUrl, bankBUrl, bankCUrl};
         for (String url : allBankUrls) {
-            if (!url.equals(getOwnUrl())) {
-                pendingTransactions.addAll(fetchPendingFromBank(url));
+            if (!url.equals(getOwnUrl())) {  // skip own bank
+                List<BlockTransaction> remoteTxs = fetchPendingFromBank(url);
+                for (BlockTransaction tx : remoteTxs) {
+                    tx.setTxId(null);
+                }
+                pendingTransactions.addAll(remoteTxs);
             }
         }
 
-        // Deduplicate by txId
-        Map<Long, BlockTransaction> deduped = new LinkedHashMap<>();
-        for (BlockTransaction tx : pendingTransactions) {
-            if (tx.getTxId() != null) {
-                deduped.put(tx.getTxId(), tx);
-            }
-        }
-        pendingTransactions = new ArrayList<>(deduped.values());
+
 
         if (pendingTransactions.isEmpty()) {
             System.out.println("No pending transactions: Skipping block creation");
