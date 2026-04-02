@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useUser } from '../contexts/UserContext';
 
@@ -26,13 +26,8 @@ function Explorer() {
         }
     };
 
-    useEffect(() => {
-        if (isLoggedIn && selectedBank) {
-            fetchChain();
-        }
-    }, [isLoggedIn, selectedBank]);
 
-    const fetchChain = async () => {
+    const fetchChain = useCallback(async () => {
         setLoading(true);
         try {
             const response = await axios.get(`${selectedBank.apiUrl}/api/blockchain/chain`);
@@ -41,7 +36,13 @@ function Explorer() {
             console.error('Error fetching chain:', error);
         }
         setLoading(false);
-    };
+    }, [selectedBank]);
+
+    useEffect(() => {
+        if (isLoggedIn && selectedBank) {
+            fetchChain();
+        }
+    }, [isLoggedIn, selectedBank, fetchChain]);
 
     const fetchTransactions = async (blockNumber) => {
         try {
