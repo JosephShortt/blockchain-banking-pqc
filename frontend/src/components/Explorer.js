@@ -47,8 +47,8 @@ function Explorer() {
         const isProduction = process.env.NODE_ENV === 'production';
         const bankUrls = isProduction ? [
             'https://blockchainbank.duckdns.org/api',
-            'https://blockchainbank.duckdns.org/bank-b',
-            'https://blockchainbank.duckdns.org/bank-c'
+            'https://blockchainbank.duckdns.org/bank-b/api',
+            'https://blockchainbank.duckdns.org/bank-c/api'
         ] : [
             'https://localhost:8443',
             'https://localhost:8444',
