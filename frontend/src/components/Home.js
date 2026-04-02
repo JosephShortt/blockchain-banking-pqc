@@ -11,23 +11,27 @@ function Home() {
   const [iban, setIban] = useState("");
   const [password, setPassword] = useState("");
   const [transactions, setTransactions] = useState([]); // store transactions
-
+  const [currentBalance, setCurrentBalance] = useState(accountData?.balance);
 
 
 
   // useEffect runs once when the component mounts
   useEffect(() => {
-    async function fetchTransactions() {
+    async function fetchData() {
       try {
+        const balanceResponse = await axios.get(`${selectedBank.apiUrl}/api/accounts/balance/${accountData.iban}`);
+        setCurrentBalance(balanceResponse.data);
+
         const response = await axios.get(`${selectedBank.apiUrl}/api/accounts/transactions/${accountData.iban}`);
         setTransactions(response.data); // save transactions to state
+
       } catch (error) {
-        console.error("Error loading transactions:", error);
+        console.error("Error loading data:", error);
       }
     }
 
     if (accountData?.iban && selectedBank) {
-      fetchTransactions();
+      fetchData();
     }
   }, [accountData, selectedBank]); // runs when accountData changes (e.g., after login)
 
@@ -97,7 +101,7 @@ function Home() {
           <p>Balance: {new Intl.NumberFormat('en-IE', {
             style: 'currency',
             currency: 'EUR'
-          }).format(accountData.balance)}</p>
+          }).format(currentBalance)}</p>
         </div>
 
 
