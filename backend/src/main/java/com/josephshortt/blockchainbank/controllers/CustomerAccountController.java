@@ -97,5 +97,12 @@ public class CustomerAccountController {
         return LoadCustomerAccounts.accounts;
     }
 
-
+    @GetMapping("/balance/{iban}")
+    public ResponseEntity<?> getBalance(@PathVariable String iban) {
+        Optional<DefaultBankAccount> account = bankAccountRepository.findByIban(iban);
+        if (account.isEmpty()) {
+            return ResponseEntity.status(404).body("Account not found");
+        }
+        return ResponseEntity.ok(account.get().getBalance());
+    }
 }

@@ -172,7 +172,7 @@ public class ConsensusService {
 
         Block block = blockOpt.get();
         List<BlockTransaction> txs = pendingBlockTransactions.getOrDefault(blockNumber, new ArrayList<>());
-        System.out.println("TXS in memory for block " + blockNumber + ": " + txs.size()); 
+        System.out.println("TXS in memory for block " + blockNumber + ": " + txs.size());
 
 
         // Check if already finalized
