@@ -46,7 +46,7 @@ public class ConsensusService {
         if (block.getTransactions() != null) {
             pendingBlockTransactions.put(block.getBlockNumber(), block.getTransactions());
         }
-        
+
         // Broadcast PROPOSE to all other banks
         ConsensusMessage proposeMsg = new ConsensusMessage(
                 block.getBlockNumber(),
