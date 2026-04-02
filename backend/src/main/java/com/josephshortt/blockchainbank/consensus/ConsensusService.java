@@ -42,6 +42,11 @@ public class ConsensusService {
         prepareVotes.put(block.getBlockNumber(), new HashSet<>());
         commitVotes.put(block.getBlockNumber(), new HashSet<>());
 
+        // Store transactions BEFORE broadcasting
+        if (block.getTransactions() != null) {
+            pendingBlockTransactions.put(block.getBlockNumber(), block.getTransactions());
+        }
+        
         // Broadcast PROPOSE to all other banks
         ConsensusMessage proposeMsg = new ConsensusMessage(
                 block.getBlockNumber(),
