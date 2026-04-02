@@ -164,7 +164,7 @@ function Explorer() {
                                 Hash: {block.hash}
                             </p>
                             <p style={{ margin: '5px 0', fontSize: '11px', color: '#999', wordBreak: 'break-all' }}>
-                                Hash: {block.prevHash}
+                                Previous Hash: {block.prevHash}
                             </p>
                             <p style={{ margin: '5px 0', fontSize: '11px', color: '#999' }}>
                                 {new Date(block.createdAt).toLocaleString()}
@@ -192,7 +192,7 @@ function Explorer() {
                                     <p style={{ margin: '3px 0' }}><strong>From:</strong> {tx.senderIban} ({tx.senderBankId})</p>
                                     <p style={{ margin: '3px 0' }}><strong>To:</strong> {tx.receiverIban} ({tx.receiverBankId})</p>
                                     <p style={{ margin: '3px 0', fontSize: '11px', color: '#999', wordBreak: 'break-all' }}>
-                                        <strong>Signature:</strong> {tx.senderSignature?.substring(0, 40)}...
+                                        <strong>Dilithium Signature:</strong> {tx.senderSignature?.substring(0, 200)}....
                                     </p>
                                 </div>
                             ))
