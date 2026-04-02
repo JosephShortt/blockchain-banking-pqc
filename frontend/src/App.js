@@ -3,8 +3,10 @@ import BankSelection from './components/BankSelection.js';
 import AccountCreation from './components/AccountCreations';
 import UserLogin from './components/UserLogin.js';
 import Home from './components/Home';
+import Explorer from './components/Explorer';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from './contexts/UserContext.js';
+
 function Navigation() {
   const navigate = useNavigate();
   const { selectedBank } = useUser();
@@ -37,6 +39,7 @@ function Navigation() {
         <button onClick={() => navigate('/register')} style={{ padding: '5px 10px' }}>Create Account</button>
         <button onClick={() => navigate('/login')} style={{ padding: '5px 10px' }}>Login</button>
         <button onClick={() => navigate('/dashboard')} style={{ padding: '5px 10px' }}>Dashboard</button>
+        <button onClick={() => navigate('/explorer')} style={{ padding: '5px 10px', backgroundColor: '#1a1a2e', color: 'white' }}>Admin</button>
       </div>
     </div >
   );
@@ -55,6 +58,7 @@ function App() {
             <Route path="/register" element={<AccountCreation />} />
             <Route path="/login" element={<UserLogin />} />
             <Route path="/dashboard" element={<Home />} />
+            <Route path="/explorer" element={<Explorer />} />
           </Routes>
         </div>
       </Router>
