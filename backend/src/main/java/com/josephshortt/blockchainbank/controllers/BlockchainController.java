@@ -4,6 +4,7 @@ import com.josephshortt.blockchainbank.blockchain.Block;
 import com.josephshortt.blockchainbank.blockchain.BlockStatus;
 import com.josephshortt.blockchainbank.blockchain.BlockchainService;
 import com.josephshortt.blockchainbank.repository.BlockRepository;
+import com.josephshortt.blockchainbank.repository.BlockTransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +19,9 @@ public class BlockchainController {
 
     @Autowired
     private BlockRepository blockRepository;
+
+    @Autowired
+    private BlockTransactionRepository blockTransactionRepository;
 
     @PostMapping("/create-block")
     public ResponseEntity<?> createBlock() {
@@ -91,5 +95,10 @@ public class BlockchainController {
     @GetMapping("/pending-transactions")
     public ResponseEntity<?> getPendingTransactions() {
         return ResponseEntity.ok(blockchainService.getPendingTransactions());
+    }
+
+    @GetMapping("/block/{blockNumber}/transactions")
+    public ResponseEntity<?> getBlockTransactions(@PathVariable Long blockNumber) {
+        return ResponseEntity.ok(blockTransactionRepository.findByBlockBlockNumber(blockNumber));
     }
 }
