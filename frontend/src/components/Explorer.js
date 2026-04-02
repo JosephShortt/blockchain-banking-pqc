@@ -161,7 +161,10 @@ function Explorer() {
                                 Proposer: <strong>{block.proposerId}</strong>
                             </p>
                             <p style={{ margin: '5px 0', fontSize: '11px', color: '#999', wordBreak: 'break-all' }}>
-                                Hash: {block.hash?.substring(0, 40)}...
+                                Hash: {block.hash}
+                            </p>
+                            <p style={{ margin: '5px 0', fontSize: '11px', color: '#999', wordBreak: 'break-all' }}>
+                                Hash: {block.prevHash}
                             </p>
                             <p style={{ margin: '5px 0', fontSize: '11px', color: '#999' }}>
                                 {new Date(block.createdAt).toLocaleString()}
