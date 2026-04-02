@@ -1,12 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { useUser } from '../contexts/UserContext';
 
 const ADMIN_USERNAME = 'admin';
 const ADMIN_PASSWORD = 'admin123';
 
 function Explorer() {
-    const { selectedBank } = useUser();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -30,29 +28,49 @@ function Explorer() {
     const fetchChain = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${selectedBank.apiUrl}/api/blockchain/chain`);
+            const response = await axios.get(`/api/blockchain/chain`);
             setBlocks(response.data.sort((a, b) => b.blockNumber - a.blockNumber));
         } catch (error) {
             console.error('Error fetching chain:', error);
         }
         setLoading(false);
-    }, [selectedBank]);
+    },[]);
 
     useEffect(() => {
-        if (isLoggedIn && selectedBank) {
+        if (isLoggedIn) {
             fetchChain();
         }
-    }, [isLoggedIn, selectedBank, fetchChain]);
+    }, [isLoggedIn, fetchChain]);
 
     const fetchTransactions = async (blockNumber) => {
-        try {
-            const response = await axios.get(`${selectedBank.apiUrl}/api/blockchain/block/${blockNumber}/transactions`);
-            setTransactions(response.data);
-            setSelectedBlock(blockNumber);
-        } catch (error) {
-            console.error('Error fetching transactions:', error);
-        }
-    };
+    try {
+        const isProduction = process.env.NODE_ENV === 'production';
+        const bankUrls = isProduction ? [
+            'https://blockchainbank.duckdns.org/api',
+            'https://blockchainbank.duckdns.org/bank-b',
+            'https://blockchainbank.duckdns.org/bank-c'
+        ] : [
+            'https://localhost:8443',
+            'https://localhost:8444',
+            'https://localhost:8445'
+        ];
+
+        const results = await Promise.allSettled(
+            bankUrls.map(url => 
+                axios.get(`${url}/blockchain/block/${blockNumber}/transactions`)
+            )
+        );
+
+        const allTxs = results
+            .filter(r => r.status === 'fulfilled')
+            .flatMap(r => r.value.data);
+
+        setTransactions(allTxs);
+        setSelectedBlock(blockNumber);
+    } catch (error) {
+        console.error('Error fetching transactions:', error);
+    }
+};
 
     const getStatusColor = (status) => {
         switch (status) {
@@ -66,7 +84,7 @@ function Explorer() {
         return (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
                 <div style={{ border: '1px solid #ccc', borderRadius: '8px', padding: '40px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)', minWidth: '300px' }}>
-                    <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>🔐 Admin Login</h2>
+                    <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Admin Login</h2>
                     <p style={{ textAlign: 'center', color: '#666', marginBottom: '20px' }}>Blockchain Explorer</p>
                     {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -100,13 +118,10 @@ function Explorer() {
     return (
         <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <h2>🔗 Blockchain Explorer — {selectedBank?.name}</h2>
+                <h2>Blockchain Explorer</h2>
                 <div style={{ display: 'flex', gap: '10px' }}>
                     <button onClick={fetchChain} style={{ padding: '8px 16px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
-                        🔄 Refresh
-                    </button>
-                    <button onClick={() => setIsLoggedIn(false)} style={{ padding: '8px 16px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
-                        Logout
+                        Refresh
                     </button>
                 </div>
             </div>
