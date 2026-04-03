@@ -519,9 +519,20 @@ public class BlockchainService {
 
             if(receiverAccount.isEmpty()){
                 System.out.println("Settlement Failed: Account "+ tx.getReceiverIban() + " not found.");
-                // TODO: Notify sender's bank to refund
+                // Create a refund block transaction back to the sender
+                BlockTransaction refundTx = new BlockTransaction();
+                refundTx.setSenderIban(tx.getReceiverIban());      // original receiver becomes sender
+                refundTx.setReceiverIban(tx.getSenderIban());      // original sender gets refunded
+                refundTx.setAmount(tx.getAmount());
+                refundTx.setSenderBankId(tx.getReceiverBankId());
+                refundTx.setReceiverBankId(tx.getSenderBankId());
+                refundTx.setSenderPublicKey(tx.getSenderPublicKey()); // reuse original key
+                refundTx.setSenderSignature(tx.getSenderSignature()); // reuse original signature
+                blockTransactionRepository.save(refundTx);
+
+                System.out.println("Refund transaction created: " + tx.getAmount() + " back to " + tx.getSenderIban());
                 continue;
-            }
+             }
 
             DefaultBankAccount receiver = receiverAccount.get();
             receiver.setBalance(receiver.getBalance().add(tx.getAmount()));
