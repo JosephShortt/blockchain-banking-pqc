@@ -13,6 +13,9 @@ function Explorer() {
     const [selectedBlock, setSelectedBlock] = useState(null);
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [settlements, setSettlements] = useState(null);
+    const [showSettlements, setShowSettlements] = useState(false);
+
 
     const handleLogin = (e) => {
         e.preventDefault();
@@ -34,7 +37,7 @@ function Explorer() {
             console.error('Error fetching chain:', error);
         }
         setLoading(false);
-    },[]);
+    }, []);
 
     useEffect(() => {
         if (isLoggedIn) {
@@ -43,34 +46,34 @@ function Explorer() {
     }, [isLoggedIn, fetchChain]);
 
     const fetchTransactions = async (blockNumber) => {
-    try {
-        const isProduction = process.env.NODE_ENV === 'production';
-        const bankUrls = isProduction ? [
-            'https://blockchainbank.duckdns.org/api',
-            'https://blockchainbank.duckdns.org/bank-b/api',
-            'https://blockchainbank.duckdns.org/bank-c/api'
-        ] : [
-            'https://localhost:8443',
-            'https://localhost:8444',
-            'https://localhost:8445'
-        ];
+        try {
+            const isProduction = process.env.NODE_ENV === 'production';
+            const bankUrls = isProduction ? [
+                'https://blockchainbank.duckdns.org/api',
+                'https://blockchainbank.duckdns.org/bank-b/api',
+                'https://blockchainbank.duckdns.org/bank-c/api'
+            ] : [
+                'https://localhost:8443',
+                'https://localhost:8444',
+                'https://localhost:8445'
+            ];
 
-        const results = await Promise.allSettled(
-            bankUrls.map(url => 
-                axios.get(`${url}/blockchain/block/${blockNumber}/transactions`)
-            )
-        );
+            const results = await Promise.allSettled(
+                bankUrls.map(url =>
+                    axios.get(`${url}/blockchain/block/${blockNumber}/transactions`)
+                )
+            );
 
-        const allTxs = results
-            .filter(r => r.status === 'fulfilled')
-            .flatMap(r => r.value.data);
+            const allTxs = results
+                .filter(r => r.status === 'fulfilled')
+                .flatMap(r => r.value.data);
 
-        setTransactions(allTxs);
-        setSelectedBlock(blockNumber);
-    } catch (error) {
-        console.error('Error fetching transactions:', error);
-    }
-};
+            setTransactions(allTxs);
+            setSelectedBlock(blockNumber);
+        } catch (error) {
+            console.error('Error fetching transactions:', error);
+        }
+    };
 
     const getStatusColor = (status) => {
         switch (status) {
@@ -79,6 +82,17 @@ function Explorer() {
             default: return '#6c757d';
         }
     };
+
+    const fetchSettlements = async (blockNumber) => {
+        try {
+            const response = await axios.get(`/api/blockchain/block/${blockNumber}/settlements`);
+            setSettlements(response.data);
+            setShowSettlements(true);
+        } catch (error) {
+            console.error('Error fetching settlements:', error);
+        }
+    };
+
 
     if (!isLoggedIn) {
         return (
@@ -169,6 +183,28 @@ function Explorer() {
                             <p style={{ margin: '5px 0', fontSize: '11px', color: '#999' }}>
                                 {new Date(block.createdAt).toLocaleString()}
                             </p>
+
+                            {block.status === 'FINALIZED' && (
+                                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            fetchSettlements(block.blockNumber);
+                                        }}
+                                        style={{
+                                            padding: '4px 10px',
+                                            fontSize: '11px',
+                                            backgroundColor: '#1a1a2e',
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '4px',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        View Settlements
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     ))}
                 </div>
@@ -200,6 +236,57 @@ function Explorer() {
                     </div>
                 )}
             </div>
+
+            {showSettlements && settlements && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                    display: 'flex', justifyContent: 'center', alignItems: 'center',
+                    zIndex: 1000
+                }}>
+                    <div style={{
+                        backgroundColor: 'white', borderRadius: '8px',
+                        padding: '30px', maxWidth: '600px', width: '90%',
+                        maxHeight: '80vh', overflowY: 'auto'
+                    }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                            <h3>Interbank Settlements</h3>
+                            <button onClick={() => setShowSettlements(false)}
+                                style={{ border: 'none', fontSize: '20px', cursor: 'pointer', background: 'none' }}>
+                                ✕
+                            </button>
+                        </div>
+
+                        <h4>Net Positions</h4>
+                        {Object.entries(settlements.netSettlements).map(([bank, amount]) => (
+                            <div key={bank} style={{
+                                display: 'flex', justifyContent: 'space-between',
+                                padding: '8px 12px', marginBottom: '6px',
+                                borderRadius: '4px',
+                                backgroundColor: amount >= 0 ? '#d4edda' : '#f8d7da'
+                            }}>
+                                <span><strong>{bank}</strong></span>
+                                <span style={{ color: amount >= 0 ? '#28a745' : '#dc3545', fontWeight: 'bold' }}>
+                                    {amount >= 0 ? '+' : ''}€{Number(amount).toFixed(2)}
+                                </span>
+                            </div>
+                        ))}
+
+                        <h4 style={{ marginTop: '20px' }}>Individual Transactions</h4>
+                        {settlements.transactions.map((tx, idx) => (
+                            <div key={idx} style={{
+                                border: '1px solid #ddd', borderRadius: '6px',
+                                padding: '10px', marginBottom: '8px', fontSize: '13px'
+                            }}>
+                                <p style={{ margin: '2px 0' }}>
+                                    <strong>{tx.senderIban}</strong> ({tx.senderBankId}) → <strong>{tx.receiverIban}</strong> ({tx.receiverBankId})
+                                </p>
+                                <p style={{ margin: '2px 0', color: '#28a745', fontWeight: 'bold' }}>€{tx.amount}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
