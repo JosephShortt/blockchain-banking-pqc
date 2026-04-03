@@ -2,6 +2,7 @@ package com.josephshortt.blockchainbank.controllers;
 
 import com.josephshortt.blockchainbank.blockchain.Block;
 import com.josephshortt.blockchainbank.blockchain.BlockStatus;
+import com.josephshortt.blockchainbank.blockchain.BlockTransaction;
 import com.josephshortt.blockchainbank.blockchain.BlockchainService;
 import com.josephshortt.blockchainbank.repository.BlockRepository;
 import com.josephshortt.blockchainbank.repository.BlockTransactionRepository;
@@ -9,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -22,6 +26,9 @@ public class BlockchainController {
 
     @Autowired
     private BlockTransactionRepository blockTransactionRepository;
+
+    @Autowired
+    private BlockTransaction blockTransaction;
 
     @PostMapping("/create-block")
     public ResponseEntity<?> createBlock() {
@@ -100,5 +107,19 @@ public class BlockchainController {
     @GetMapping("/block/{blockNumber}/transactions")
     public ResponseEntity<?> getBlockTransactions(@PathVariable Long blockNumber) {
         return ResponseEntity.ok(blockTransactionRepository.findByBlockBlockNumber(blockNumber));
+    }
+
+    @GetMapping("/block/{blockNumber}/settlements")
+    public ResponseEntity<?> getBlockSettlements(@PathVariable Long blockNumber) {
+        List<BlockTransaction> txs = blockTransactionRepository.findByBlockBlockNumber(blockNumber);
+
+        Block block = blockRepository.findByBlockNumber(blockNumber).orElseThrow();
+        Map<String, BigDecimal> netPositions = blockchainService.calculateNetPositions(block);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("transactions", txs);
+        result.put("netSettlements", netPositions);
+
+        return ResponseEntity.ok(result);
     }
 }
