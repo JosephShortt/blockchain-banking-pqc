@@ -198,7 +198,6 @@ public class BlockchainService {
         String expectedProposer = bankOrder[(int)((nextBlockNumber - 1) % 3)];
 
         if (!expectedProposer.equals(bankId)) {
-            System.out.println("Not our turn to propose block " + nextBlockNumber + " - expected " + expectedProposer);
             return;
         }
 
@@ -228,7 +227,6 @@ public class BlockchainService {
 
 
         if (allTransactions.isEmpty()) {
-            System.out.println("No pending transactions: Skipping block creation");
             return;
         }
 
