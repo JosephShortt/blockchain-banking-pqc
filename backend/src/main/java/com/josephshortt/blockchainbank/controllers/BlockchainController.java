@@ -26,10 +26,7 @@ public class BlockchainController {
 
     @Autowired
     private BlockTransactionRepository blockTransactionRepository;
-
-    @Autowired
-    private BlockTransaction blockTransaction;
-
+    
     @PostMapping("/create-block")
     public ResponseEntity<?> createBlock() {
         try{
