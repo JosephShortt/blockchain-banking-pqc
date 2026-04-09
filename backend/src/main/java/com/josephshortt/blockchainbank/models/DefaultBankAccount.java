@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import static com.josephshortt.blockchainbank.models.AccountType.CURRENT;
 @Entity
 public class DefaultBankAccount {
+
     @Id
     private Long customerId;
     private String accountId,iban;
