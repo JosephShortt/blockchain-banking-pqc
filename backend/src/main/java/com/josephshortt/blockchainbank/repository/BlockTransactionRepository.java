@@ -10,6 +10,5 @@ import java.util.Optional;
 public interface BlockTransactionRepository extends JpaRepository<BlockTransaction, Long> {
     List<BlockTransaction> findByBlockIsNull();
     List<BlockTransaction> findByBlockBlockNumber(Long blockNumber);
-    Optional<BlockTransaction> findBySenderIbanAndReceiverIbanAndAmount(String senderIban, String receiverIban, BigDecimal amount);
-
+    List<BlockTransaction> findBySenderIbanAndReceiverIbanAndAmount(String senderIban, String receiverIban, BigDecimal amount);
 }
