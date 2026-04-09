@@ -136,13 +136,14 @@ public class CustomerAccountController {
             @RequestParam String receiverIban,
             @RequestParam BigDecimal amount) {
 
-        Optional<BlockTransaction> blockTx = blockTransactionRepository
+        List<BlockTransaction> txs = blockTransactionRepository
                 .findBySenderIbanAndReceiverIbanAndAmount(senderIban, receiverIban, amount);
 
-        if (blockTx.isEmpty() || blockTx.get().getBlock() == null) {
-            return ResponseEntity.ok(null);
-        }
-
-        return ResponseEntity.ok(blockTx.get().getBlock().getBlockNumber());
+        // Find first one that has a block assigned
+        return txs.stream()
+                .filter(tx -> tx.getBlock() != null)
+                .findFirst()
+                .map(tx -> ResponseEntity.ok(tx.getBlock().getBlockNumber()))
+                .orElse(ResponseEntity.ok(null));
     }
 }
