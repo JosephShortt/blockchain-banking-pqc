@@ -518,19 +518,20 @@ public class BlockchainService {
             Optional<DefaultBankAccount> receiverAccount = bankAccountRepository.findByIban(tx.getReceiverIban());
 
             if(receiverAccount.isEmpty()){
-                System.out.println("Settlement Failed: Account "+ tx.getReceiverIban() + " not found.");
-                // Create a refund block transaction back to the sender
-                BlockTransaction refundTx = new BlockTransaction();
-                refundTx.setSenderIban(tx.getReceiverIban());      // original receiver becomes sender
-                refundTx.setReceiverIban(tx.getSenderIban());      // original sender gets refunded
-                refundTx.setAmount(tx.getAmount());
-                refundTx.setSenderBankId(tx.getReceiverBankId());
-                refundTx.setReceiverBankId(tx.getSenderBankId());
-                refundTx.setSenderPublicKey(tx.getSenderPublicKey()); // reuse original key
-                refundTx.setSenderSignature(tx.getSenderSignature()); // reuse original signature
-                blockTransactionRepository.save(refundTx);
+                // Call sender's bank to credit back
+                try {
+                    RestTemplate rt = createTrustAllRestTemplate();
+                    String senderBankUrl = getSenderBankUrl(tx.getSenderBankId());
 
-                System.out.println("Refund transaction created: " + tx.getAmount() + " back to " + tx.getSenderIban());
+                    Map<String, Object> refundRequest = new HashMap<>();
+                    refundRequest.put("iban", tx.getSenderIban());
+                    refundRequest.put("amount", tx.getAmount());
+
+                    rt.postForObject(senderBankUrl + "/api/accounts/refund", refundRequest, String.class);
+                    System.out.println("Refund sent to " + tx.getSenderBankId() + " for " + tx.getAmount());
+                } catch (Exception e) {
+                    System.err.println("Refund failed: " + e.getMessage());
+                }
                 continue;
              }
 
@@ -550,6 +551,15 @@ public class BlockchainService {
             transactionRepository.save(localTx);
 
             System.out.println("Credited "+tx.getReceiverIban() + " with € "+tx.getAmount());
+        }
+    }
+
+    private String getSenderBankUrl(String bankId) {
+        switch (bankId) {
+            case "bank-a": return bankAUrl;
+            case "bank-b": return bankBUrl;
+            case "bank-c": return bankCUrl;
+            default: throw new IllegalArgumentException("Unknown bank: " + bankId);
         }
     }
 
