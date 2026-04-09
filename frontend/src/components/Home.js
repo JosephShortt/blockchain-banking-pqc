@@ -13,8 +13,35 @@ function Home() {
   const [transactions, setTransactions] = useState([]); // store transactions
   const [currentBalance, setCurrentBalance] = useState(accountData?.balance);
   const [selectedTx, setSelectedTx] = useState(null);
+  const [txBlockNumbers, setTxBlockNumbers] = useState({});
+  const [blockModal, setBlockModal] = useState(null);
 
 
+
+  const fetchBlockNumber = async (tx, idx) => {
+    if (txBlockNumbers[idx] !== undefined) return;
+    try {
+      const response = await axios.get(`${selectedBank.apiUrl}/api/accounts/transactions/block`, {
+        params: {
+          senderIban: tx.senderIban,
+          receiverIban: tx.receiverIban,
+          amount: tx.amount
+        }
+      });
+      setTxBlockNumbers(prev => ({ ...prev, [idx]: response.data }));
+    } catch (error) {
+      console.error('Error fetching block number:', error);
+    }
+  };
+
+  const fetchBlockDetails = async (blockNumber) => {
+    try {
+      const response = await axios.get(`${selectedBank.apiUrl}/api/blockchain/block/${blockNumber}`);
+      setBlockModal(response.data);
+    } catch (error) {
+      console.error('Error fetching block:', error);
+    }
+  };
 
   // useEffect runs once when the component mounts
   useEffect(() => {
@@ -36,7 +63,7 @@ function Home() {
     }
   }, [accountData, selectedBank]); // runs when accountData changes (e.g., after login)
 
-    // Redirect if no bank selected
+  // Redirect if no bank selected
   if (!selectedBank) {
     alert("Please Select a Bank First")
     navigate('/');
@@ -62,7 +89,7 @@ function Home() {
 
 
     try {
-      const response = await axios.post(`${selectedBank.apiUrl}/api/accounts/transaction`, 
+      const response = await axios.post(`${selectedBank.apiUrl}/api/accounts/transaction`,
         {
           account: accountData,
           amount,
@@ -79,7 +106,7 @@ function Home() {
       console.log("Transaction successful:", response.data);
       localStorage.setItem("accountData", JSON.stringify(response.data));
 
-       // Refresh transactions after sending funds
+      // Refresh transactions after sending funds
       const updatedTransactions = await axios.get(`${selectedBank.apiUrl}/api/accounts/transactions/${accountData.iban}`);
       setTransactions(updatedTransactions.data);
 
@@ -89,7 +116,7 @@ function Home() {
     }
   }
 
-   const isSent = (tx) => tx.senderIban === accountData.iban;
+  const isSent = (tx) => tx.senderIban === accountData.iban;
   const otherIban = (tx) => isSent(tx) ? tx.receiverIban : tx.senderIban;
   const formatAmount = (tx) => {
     const formatted = new Intl.NumberFormat('en-IE', { style: 'currency', currency: 'EUR' }).format(tx.amount);
@@ -124,7 +151,10 @@ function Home() {
           {transactions.slice().reverse().map((tx, idx) => (
             <div
               key={idx}
-              onClick={() => setSelectedTx(selectedTx === idx ? null : idx)}
+              onClick={() => {
+                setSelectedTx(selectedTx === idx ? null : idx);
+                fetchBlockNumber(tx, idx);
+              }}
               style={{
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -150,6 +180,18 @@ function Home() {
                     <p style={{ margin: '2px 0' }}>To: {tx.receiverIban}</p>
                     <p style={{ margin: '2px 0' }}>Time: {new Date(tx.timestamp).toLocaleString()}</p>
                     <p style={{ margin: '2px 0' }}>Type: {tx.transactionType}</p>
+                    <p style={{ margin: '2px 0' }}>
+                      Block: {txBlockNumbers[idx] !== undefined
+                        ? (txBlockNumbers[idx] !== null
+                          ? <span
+                            onClick={(e) => { e.stopPropagation(); fetchBlockDetails(txBlockNumbers[idx]); }}
+                            style={{ color: '#007bff', cursor: 'pointer', textDecoration: 'underline' }}
+                          >
+                            #{txBlockNumbers[idx]}
+                          </span>
+                          : 'Pending')
+                        : 'Loading...'}
+                    </p>
                   </div>
                 )}
               </div>
@@ -167,6 +209,36 @@ function Home() {
 
         {/* Transaction Detail Modal */}
       </div>
+      {blockModal && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          display: 'flex', justifyContent: 'center', alignItems: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white', borderRadius: '8px',
+            padding: '30px', maxWidth: '500px', width: '90%',
+            maxHeight: '80vh', overflowY: 'auto'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h3>Block #{blockModal.blockNumber}</h3>
+              <button onClick={() => setBlockModal(null)}
+                style={{ border: 'none', fontSize: '20px', cursor: 'pointer', background: 'none' }}>
+                ✕
+              </button>
+            </div>
+            <p><strong>Status:</strong> <span style={{
+              backgroundColor: blockModal.status === 'FINALIZED' ? '#28a745' : '#ffc107',
+              color: 'white', padding: '2px 8px', borderRadius: '12px', fontSize: '12px'
+            }}>{blockModal.status}</span></p>
+            <p><strong>Proposer:</strong> {blockModal.proposerId}</p>
+            <p style={{ wordBreak: 'break-all' }}><strong>Hash:</strong> {blockModal.hash}</p>
+            <p style={{ wordBreak: 'break-all' }}><strong>Previous Hash:</strong> {blockModal.prevHash}</p>
+            <p><strong>Created:</strong> {new Date(blockModal.createdAt).toLocaleString()}</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,8 +1,10 @@
 package com.josephshortt.blockchainbank.controllers;
 
+import com.josephshortt.blockchainbank.blockchain.BlockTransaction;
 import com.josephshortt.blockchainbank.crypto.KeyManagementService;
 import com.josephshortt.blockchainbank.models.*;
 import com.josephshortt.blockchainbank.repository.BankAccountRepository;
+import com.josephshortt.blockchainbank.repository.BlockTransactionRepository;
 import com.josephshortt.blockchainbank.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +28,9 @@ public class CustomerAccountController {
     //key generation and storage
     @Autowired
     private KeyManagementService keyManagementService;
+
+    @Autowired
+    BlockTransactionRepository blockTransactionRepository;
 
     @PostMapping
     public ResponseEntity<Object> createAccount(@RequestBody CustomerAccount customerAccount) throws Exception {
@@ -123,5 +128,21 @@ public class CustomerAccountController {
 
         System.out.println("Refunded " + amount + " to " + iban);
         return ResponseEntity.ok("Refund processed");
+    }
+
+    @GetMapping("/transactions/block")
+    public ResponseEntity<?> getTransactionBlock(
+            @RequestParam String senderIban,
+            @RequestParam String receiverIban,
+            @RequestParam BigDecimal amount) {
+
+        Optional<BlockTransaction> blockTx = blockTransactionRepository
+                .findBySenderIbanAndReceiverIbanAndAmount(senderIban, receiverIban, amount);
+
+        if (blockTx.isEmpty() || blockTx.get().getBlock() == null) {
+            return ResponseEntity.ok(null);
+        }
+
+        return ResponseEntity.ok(blockTx.get().getBlock().getBlockNumber());
     }
 }
