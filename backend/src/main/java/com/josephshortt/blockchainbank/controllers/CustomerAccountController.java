@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -104,5 +105,23 @@ public class CustomerAccountController {
             return ResponseEntity.status(404).body("Account not found");
         }
         return ResponseEntity.ok(account.get().getBalance());
+    }
+
+    @PostMapping("/refund")
+    public ResponseEntity<?> refund(@RequestBody Map<String, Object> request) {
+        String iban = (String) request.get("iban");
+        BigDecimal amount = new BigDecimal(request.get("amount").toString());
+
+        Optional<DefaultBankAccount> account = bankAccountRepository.findByIban(iban);
+        if (account.isEmpty()) {
+            return ResponseEntity.status(404).body("Account not found for refund");
+        }
+
+        DefaultBankAccount acc = account.get();
+        acc.setBalance(acc.getBalance().add(amount));
+        bankAccountRepository.save(acc);
+
+        System.out.println("Refunded " + amount + " to " + iban);
+        return ResponseEntity.ok("Refund processed");
     }
 }
