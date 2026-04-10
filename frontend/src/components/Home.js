@@ -21,14 +21,14 @@ function Home() {
   const fetchBlockNumber = async (tx, idx) => {
     if (txBlockNumbers[idx] !== undefined) return;
     try {
-        const response = await axios.get(`${selectedBank.apiUrl}/api/accounts/transactions/block`, {
-            params: { localTransactionId: tx.id }
-        });
-        setTxBlockNumbers(prev => ({ ...prev, [idx]: response.data }));
+      const response = await axios.get(`${selectedBank.apiUrl}/api/accounts/transactions/block`, {
+        params: { localTransactionId: tx.id }
+      });
+      setTxBlockNumbers(prev => ({ ...prev, [idx]: response.data }));
     } catch (error) {
-        console.error('Error fetching block number:', error);
+      console.error('Error fetching block number:', error);
     }
-};
+  };
 
   const fetchBlockDetails = async (blockNumber) => {
     try {
@@ -124,7 +124,14 @@ function Home() {
       <div style={{ width: '500px' }}>
 
         {/* Account Card */}
-        <div style={{ border: '1px solid #ccc', borderRadius: '8px', padding: '20px', marginTop: '10px', marginBottom: '20px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
+        <div style={{
+          background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
+          borderRadius: '16px',
+          padding: '28px',
+          marginBottom: '20px',
+          color: 'white',
+          boxShadow: '0 8px 32px rgba(26, 26, 46, 0.3)'
+        }}>
           <h2>{selectedBank.name} - Dashboard</h2>
           <h3>Welcome, {userData.firstName}!</h3>
           <p>Email: {userData.email}</p>
