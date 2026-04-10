@@ -18,7 +18,7 @@ function Navigation() {
       justifyContent: 'space-between',
       alignItems: 'center',
       padding: '0 24px',
-      height: '60px',
+      height: '90px',
       borderBottom: '1px solid #eee',
       position: 'fixed',
       top: 0,
@@ -30,11 +30,11 @@ function Navigation() {
     }}>
 
       <div>
-        <button style={{ border: 'none', padding: 0, }}> <img src="/logo.png" alt="home" onClick={() => navigate('/')} style={{ width: '50px', height: 'auto', cursor: 'pointer' }} /></button>
+        <button style={{ border: 'none', padding: 0, }}> <img src="/logo.png" alt="home" onClick={() => navigate('/')} style={{ width: '80px', height: 'auto', cursor: 'pointer' }} /></button>
       </div>
 
       <div style={{ textAlign: 'center', flexGrow: 1 }}>
-        <h1 style={{ margin: 0, fontSize: '32px', fontWeight: '600', color: '#1a1a2e' }}>{selectedBank ? selectedBank.name : 'Bank'} </h1>
+        <h1 style={{ margin: 0, fontSize: '32px', fontWeight: '700', color: '#1a1a2e' }}>{selectedBank ? selectedBank.name : 'Bank'} </h1>
       </div>
 
 
@@ -68,7 +68,7 @@ function App() {
     <>
       <Router>
         <Navigation />
-        <div style={{ paddingTop: '70px' }}>
+        <div style={{ paddingTop: '90px' }}>
           <Routes>
             <Route path="/" element={<BankSelection />} />
             <Route path="/register" element={<AccountCreation />} />
