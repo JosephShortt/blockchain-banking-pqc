@@ -25,7 +25,8 @@ function Home() {
         params: {
           senderIban: tx.senderIban,
           receiverIban: tx.receiverIban,
-          amount: tx.amount
+          amount: tx.amount,
+          timestamp: tx.timestamp
         }
       });
       setTxBlockNumbers(prev => ({ ...prev, [idx]: response.data }));

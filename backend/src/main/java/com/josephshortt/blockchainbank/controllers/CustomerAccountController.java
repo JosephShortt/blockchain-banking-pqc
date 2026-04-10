@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -134,16 +135,18 @@ public class CustomerAccountController {
     public ResponseEntity<?> getTransactionBlock(
             @RequestParam String senderIban,
             @RequestParam String receiverIban,
-            @RequestParam BigDecimal amount) {
+            @RequestParam BigDecimal amount,
+            @RequestParam String timestamp) {
 
-        List<BlockTransaction> txs = blockTransactionRepository
-                .findBySenderIbanAndReceiverIbanAndAmount(senderIban, receiverIban, amount);
+        LocalDateTime createdAt = LocalDateTime.parse(timestamp);
 
-        // Find first one that has a block assigned
-        return txs.stream()
-                .filter(tx -> tx.getBlock() != null)
-                .findFirst()
-                .map(tx -> ResponseEntity.ok(tx.getBlock().getBlockNumber()))
-                .orElse(ResponseEntity.ok(null));
+        Optional<BlockTransaction> tx = blockTransactionRepository
+                .findBySenderIbanAndReceiverIbanAndAmountAndCreatedAt(senderIban, receiverIban, amount, createdAt);
+
+        if (tx.isEmpty() || tx.get().getBlock() == null) {
+            return ResponseEntity.ok(null);
+        }
+
+        return ResponseEntity.ok(tx.get().getBlock().getBlockNumber());
     }
 }
