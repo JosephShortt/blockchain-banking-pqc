@@ -108,7 +108,7 @@ public class TransactionController {
                 );
 
                 localTx.setTransactionType(TransactionType.EXTERNAL);
-                transactionRepository.save(localTx);
+                Transaction savedTx = transactionRepository.save(localTx);
 
                 //Get user password to decrypt and use users private key
                 String userPassword = request.getPassword();
@@ -151,6 +151,7 @@ public class TransactionController {
                 blockTx.setReceiverBankId(receiverBankId);
                 blockTx.setSenderSignature(signature);
                 blockTx.setSenderPublicKey(publicKey);
+                blockTx.setLocalTransactionId(savedTx.getId());
 
                 blockTransactionRepository.save(blockTx);
 

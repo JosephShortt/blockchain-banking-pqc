@@ -13,6 +13,8 @@ public class BlockTransaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long txId;
 
+    private Long localTransactionId;
+
     //Transaction Data
     private LocalDateTime createdAt;
     private String senderIban;
@@ -53,6 +55,14 @@ public class BlockTransaction {
 
     public void setTxId(Long txId) {
         this.txId = txId;
+    }
+
+    public Long getLocalTransactionId() {
+        return localTransactionId;
+    }
+
+    public void setLocalTransactionId(Long localTransactionId) {
+        this.localTransactionId = localTransactionId;
     }
 
     public LocalDateTime getCreatedAt() {
