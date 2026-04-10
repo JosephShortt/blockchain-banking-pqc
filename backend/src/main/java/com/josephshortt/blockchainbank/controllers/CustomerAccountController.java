@@ -138,10 +138,15 @@ public class CustomerAccountController {
             @RequestParam BigDecimal amount,
             @RequestParam String timestamp) {
 
+        System.out.println("Looking for tx: " + senderIban + " -> " + receiverIban + " amount: " + amount + " timestamp: " + timestamp);
+
         LocalDateTime createdAt = LocalDateTime.parse(timestamp);
+        System.out.println("Parsed timestamp: " + createdAt);
 
         Optional<BlockTransaction> tx = blockTransactionRepository
                 .findBySenderIbanAndReceiverIbanAndAmountAndCreatedAt(senderIban, receiverIban, amount, createdAt);
+
+        System.out.println("Found: " + tx.isPresent());
 
         if (tx.isEmpty() || tx.get().getBlock() == null) {
             return ResponseEntity.ok(null);
