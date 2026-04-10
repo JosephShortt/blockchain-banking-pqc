@@ -132,23 +132,12 @@ public class CustomerAccountController {
     }
 
     @GetMapping("/transactions/block")
-    public ResponseEntity<?> getTransactionBlock(
-            @RequestParam String senderIban,
-            @RequestParam String receiverIban,
-            @RequestParam BigDecimal amount,
-            @RequestParam String timestamp) {
-
-        LocalDateTime ts = LocalDateTime.parse(timestamp);
-        LocalDateTime start = ts.minusSeconds(5);
-        LocalDateTime end = ts.plusSeconds(5);
-
-        List<BlockTransaction> txs = blockTransactionRepository
-                .findByDetails(senderIban, receiverIban, amount, start, end);
-
-        return txs.stream()
-                .filter(tx -> tx.getBlock() != null)
-                .findFirst()
-                .map(tx -> ResponseEntity.ok((Object) tx.getBlock().getBlockNumber()))
-                .orElse(ResponseEntity.ok(null));
+    public ResponseEntity<?> getTransactionBlock(@RequestParam Long localTransactionId) {
+        Optional<BlockTransaction> tx = blockTransactionRepository.findByLocalTransactionId(localTransactionId);
+        if (tx.isEmpty() || tx.get().getBlock() == null) {
+            return ResponseEntity.ok(null);
+        }
+        return ResponseEntity.ok(tx.get().getBlock().getBlockNumber());
     }
+
 }
