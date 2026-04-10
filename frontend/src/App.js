@@ -17,13 +17,16 @@ function Navigation() {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      padding: '10px 20px',
-      borderBottom: '1px solid #ccc',
+      padding: '0 24px',
+      height: '60px',
+      borderBottom: '1px solid #eee',
       position: 'fixed',
       top: 0,
       width: '100%',
       backgroundColor: 'white',
-      zIndex: 1000
+      zIndex: 1000,
+      boxSizing: 'border-box',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
     }}>
 
       <div>
@@ -31,15 +34,28 @@ function Navigation() {
       </div>
 
       <div style={{ textAlign: 'center', flexGrow: 1 }}>
-        <h1 style={{ margin: 0 }}>{selectedBank ? selectedBank.name : 'Bank'} </h1>
+        <h1 style={{ margin: 0, fontSize: '32px', fontWeight: '600', color: '#1a1a2e' }}>{selectedBank ? selectedBank.name : 'Bank'} </h1>
       </div>
 
 
-      <div style={{ display: 'flex', gap: '10px', marginRight: '30px' }}>
-        <button onClick={() => navigate('/register')} style={{ padding: '5px 10px' }}>Create Account</button>
-        <button onClick={() => navigate('/login')} style={{ padding: '5px 10px' }}>Login</button>
-        <button onClick={() => navigate('/dashboard')} style={{ padding: '5px 10px' }}>Dashboard</button>
-        <button onClick={() => navigate('/explorer')} style={{ padding: '5px 10px', backgroundColor: '#1a1a2e', color: 'white' }}>Admin</button>
+      <div style={{ display: 'flex', gap: '8px' }}>
+        <button onClick={() => navigate('/register')} style={{
+          padding: '8px 16px', border: '1px solid #1a1a2e', borderRadius: '8px',
+          backgroundColor: 'transparent', color: '#1a1a2e', cursor: 'pointer', fontSize: '14px'
+        }}>Register</button>
+        <button onClick={() => navigate('/login')} style={{
+          padding: '8px 16px', border: '1px solid #1a1a2e', borderRadius: '8px',
+          backgroundColor: 'transparent', color: '#1a1a2e', cursor: 'pointer', fontSize: '14px'
+        }}>Login</button>
+        <button onClick={() => navigate('/dashboard')} style={{
+          padding: '8px 16px', border: 'none', borderRadius: '8px',
+          backgroundColor: '#1a1a2e', color: 'white', cursor: 'pointer', fontSize: '14px'
+        }}>Dashboard</button>
+        <button onClick={() => navigate('/explorer')} style={{
+          padding: '8px 16px', border: 'none', borderRadius: '8px',
+          backgroundColor: '#e8b400', color: '#1a1a2e', cursor: 'pointer', fontSize: '14px',
+          fontWeight: '600'
+        }}>Admin</button>
       </div>
     </div >
   );
