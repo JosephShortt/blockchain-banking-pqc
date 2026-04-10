@@ -21,6 +21,7 @@ function Home() {
   const fetchBlockNumber = async (tx, idx) => {
     if (txBlockNumbers[idx] !== undefined) return;
     try {
+      { console.log('block number value:', txBlockNumbers[idx]) }
       const response = await axios.get(`${selectedBank.apiUrl}/api/accounts/transactions/block`, {
         params: {
           senderIban: tx.senderIban,
@@ -29,6 +30,8 @@ function Home() {
           timestamp: tx.timestamp
         }
       });
+      console.log('block number response:', response.data);
+
       setTxBlockNumbers(prev => ({ ...prev, [idx]: response.data }));
     } catch (error) {
       console.error('Error fetching block number:', error);
