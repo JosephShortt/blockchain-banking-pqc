@@ -34,7 +34,7 @@ function Navigation() {
       </div>
 
       <div style={{ textAlign: 'center', flexGrow: 1 }}>
-        <h1 style={{ margin: 0, fontSize: '32px', fontWeight: '600', color: '#1a1a2e' }}>{selectedBank ? selectedBank.name : 'Bank'} </h1>
+        <h1 style={{ margin: 0, fontSize: '32px', fontWeight: '700', color: '#1a1a2e' }}>{selectedBank ? selectedBank.name : 'Bank'} </h1>
       </div>
 
 

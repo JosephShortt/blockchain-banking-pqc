@@ -29,6 +29,18 @@ public class PQCService {
         return keyGen.generateKeyPair();
     }
 
+    public KeyPair generateDilithiumKeyPair(DilithiumParameterSpec spec) throws Exception {
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("Dilithium", "BCPQC");
+        keyGen.initialize(spec);
+        return keyGen.generateKeyPair();
+    }
+
+    public KeyPair generateDilithiumKeyPair(DilithiumParameterSpec spec, SecureRandom random) throws Exception {
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("Dilithium", "BCPQC");
+        keyGen.initialize(spec, random);
+        return keyGen.generateKeyPair();
+    }
+
     //Sign data with dilithium private key
     public String signDilithium(String data, PrivateKey privateKey) throws Exception{
         Signature sig = Signature.getInstance("Dilithium", "BCPQC");
