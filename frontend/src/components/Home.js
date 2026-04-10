@@ -21,7 +21,7 @@ function Home() {
   const fetchBlockNumber = async (tx, idx) => {
     if (txBlockNumbers[idx] !== undefined) return;
     try {
-      { console.log('block number value:', txBlockNumbers[idx]) }
+      console.log('block number value:', txBlockNumbers[idx]) 
       const response = await axios.get(`${selectedBank.apiUrl}/api/accounts/transactions/block`, {
         params: {
           senderIban: tx.senderIban,
