@@ -16,7 +16,7 @@ public interface BlockTransactionRepository extends JpaRepository<BlockTransacti
     List<BlockTransaction> findByBlockBlockNumber(Long blockNumber);
 
     @Query("SELECT bt FROM BlockTransaction bt WHERE bt.senderIban = :senderIban AND bt.receiverIban = :receiverIban AND bt.amount = :amount AND bt.createdAt BETWEEN :start AND :end")
-    Optional<BlockTransaction> findByDetails(
+    List<BlockTransaction> findByDetails(
             @Param("senderIban") String senderIban,
             @Param("receiverIban") String receiverIban,
             @Param("amount") BigDecimal amount,
