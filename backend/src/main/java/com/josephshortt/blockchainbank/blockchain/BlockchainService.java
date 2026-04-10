@@ -552,7 +552,7 @@ public class BlockchainService {
 
             tx.setLocalTransactionId(savedTx.getId());
             blockTransactionRepository.save(tx);
-            
+
             System.out.println("Credited "+tx.getReceiverIban() + " with € "+tx.getAmount());
         }
     }

@@ -119,33 +119,38 @@ function Home() {
     return isSent(tx) ? `-${formatted}` : `+${formatted}`;
   };
 
+  const card = { background: 'white', borderRadius: '12px', padding: '24px', marginBottom: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' };
+  const input = { padding: '10px 14px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', width: '100%', boxSizing: 'border-box' };
+
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-      <div style={{ width: '500px' }}>
+    <div style={{ background: '#f5f7fa', minHeight: '100vh', padding: '20px' }}>
+      <div style={{ maxWidth: '560px', margin: '0 auto' }}>
 
-        {/* Account Card */}
-        <div style={{
-          background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
-          borderRadius: '16px',
-          padding: '28px',
-          marginBottom: '20px',
-          color: 'white',
-          boxShadow: '0 8px 32px rgba(26, 26, 46, 0.3)'
-        }}>
-          <h2>{selectedBank.name} - Dashboard</h2>
-          <h3>Welcome, {userData.firstName}!</h3>
-          <p>Email: {userData.email}</p>
-          <p>IBAN: {accountData.iban}</p>
-          <p>Account ID: {accountData.accountId}</p>
-          <p>Balance: {new Intl.NumberFormat('en-IE', { style: 'currency', currency: 'EUR' }).format(currentBalance)}</p>
+        <div style={{ ...card, background: '#1a1a2e', color: 'white' }}>
+          <p style={{ margin: '0 0 4px', fontSize: '12px', opacity: 0.6, textTransform: 'uppercase', letterSpacing: '1px' }}>{selectedBank.name}</p>
+          <p style={{ margin: '0 0 16px', fontSize: '16px' }}>Welcome, {userData.firstName}</p>
+          <p style={{ margin: '0 0 4px', fontSize: '12px', opacity: 0.6 }}>Balance</p>
+          <p style={{ margin: '0 0 16px', fontSize: '32px', fontWeight: 'bold' }}>
+            {new Intl.NumberFormat('en-IE', { style: 'currency', currency: 'EUR' }).format(currentBalance)}
+          </p>
+          <p style={{ margin: 0, fontSize: '13px', opacity: 0.6 }}>{accountData.iban}</p>
+          <p style={{ margin: 0, fontSize: '13px', opacity: 0.6 }}>Account ID: {accountData.accountId}</p>
+          <p style={{ margin: 0, fontSize: '13px', opacity: 0.6 }}>Email: {userData.email}</p>
+          <p style={{ margin: 0, fontSize: '13px', opacity: 0.6 }}>Customer ID: {userData.customerId}</p>
         </div>
-
         {/* Send Funds */}
-        <div style={{ marginBottom: '20px' }}>
-          <input type="text" value={iban} onChange={(e) => setIban(e.target.value)} placeholder="Enter IBAN to send to" style={{ padding: '8px', marginRight: '8px', width: '200px' }} />
-          <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Amount" style={{ padding: '8px', marginRight: '8px', width: '100px' }} />
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" style={{ padding: '8px', marginRight: '8px', width: '100px' }} />
-          <button type="button" onClick={handleSendFunds} style={{ padding: '8px 16px' }}>Send</button>
+        <div style={card}>
+          <p style={{ margin: '0 0 12px', fontWeight: '600', color: '#1a1a2e' }}>Send Money</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <input style={input} type="text" value={iban} onChange={e => setIban(e.target.value)} placeholder="Recipient IBAN" />
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <input style={input} type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="Amount €" />
+              <input style={input} type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" />
+            </div>
+            <button onClick={handleSendFunds} style={{ padding: '12px', background: '#1a1a2e', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '600', cursor: 'pointer', fontSize: '14px' }}>
+              Send
+            </button>
+          </div>
         </div>
 
         {/* Transaction History */}
