@@ -139,19 +139,16 @@ public class CustomerAccountController {
             @RequestParam String timestamp) {
 
         LocalDateTime ts = LocalDateTime.parse(timestamp);
-        LocalDateTime start = ts.minusSeconds(3);
-        LocalDateTime end = ts.plusSeconds(3);
+        LocalDateTime start = ts.minusSeconds(5);
+        LocalDateTime end = ts.plusSeconds(5);
 
-        Optional<BlockTransaction> tx = blockTransactionRepository
+        List<BlockTransaction> txs = blockTransactionRepository
                 .findByDetails(senderIban, receiverIban, amount, start, end);
 
-
-        System.out.println("Found: " + tx.isPresent());
-
-        if (tx.isEmpty() || tx.get().getBlock() == null) {
-            return ResponseEntity.ok(null);
-        }
-
-        return ResponseEntity.ok(tx.get().getBlock().getBlockNumber());
+        return txs.stream()
+                .filter(tx -> tx.getBlock() != null)
+                .findFirst()
+                .map(tx -> ResponseEntity.ok((Object) tx.getBlock().getBlockNumber()))
+                .orElse(ResponseEntity.ok(null));
     }
 }
