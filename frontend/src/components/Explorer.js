@@ -68,7 +68,16 @@ function Explorer() {
                 .filter(r => r.status === 'fulfilled')
                 .flatMap(r => r.value.data);
 
-            setTransactions(allTxs);
+            // Deduplicate
+            const seen = new Set();
+            const dedupedTxs = allTxs.filter(tx => {
+                const key = `${tx.senderIban}-${tx.receiverIban}-${tx.amount}-${tx.createdAt}`;
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
+
+            setTransactions(dedupedTxs);
             setSelectedBlock(blockNumber);
         } catch (error) {
             console.error('Error fetching transactions:', error);
@@ -84,42 +93,51 @@ function Explorer() {
     };
 
     const fetchSettlements = async (blockNumber) => {
-    try {
-        const isProduction = process.env.NODE_ENV === 'production';
-        const bankUrls = isProduction ? [
-            'https://blockchainbank.duckdns.org/api',
-            'https://blockchainbank.duckdns.org/bank-b/api',
-            'https://blockchainbank.duckdns.org/bank-c/api'
-        ] : [
-            'https://localhost:8443',
-            'https://localhost:8444',
-            'https://localhost:8445'
-        ];
+        try {
+            const isProduction = process.env.NODE_ENV === 'production';
+            const bankUrls = isProduction ? [
+                'https://blockchainbank.duckdns.org/api',
+                'https://blockchainbank.duckdns.org/bank-b/api',
+                'https://blockchainbank.duckdns.org/bank-c/api'
+            ] : [
+                'https://localhost:8443',
+                'https://localhost:8444',
+                'https://localhost:8445'
+            ];
 
-        const results = await Promise.allSettled(
-            bankUrls.map(url =>
-                axios.get(`${url}/blockchain/block/${blockNumber}/settlements`)
-            )
-        );
+            const results = await Promise.allSettled(
+                bankUrls.map(url =>
+                    axios.get(`${url}/blockchain/block/${blockNumber}/settlements`)
+                )
+            );
 
-        // Combine all transactions from all banks
-        const allTxs = results
-            .filter(r => r.status === 'fulfilled')
-            .flatMap(r => r.value.data.transactions);
+            // Combine all transactions from all banks
+            const allTxs = results
+                .filter(r => r.status === 'fulfilled')
+                .flatMap(r => r.value.data.transactions);
 
-        // Recalculate net positions from all transactions
-        const netPositions = {};
-        allTxs.forEach(tx => {
-            netPositions[tx.senderBankId] = (netPositions[tx.senderBankId] || 0) - Number(tx.amount);
-            netPositions[tx.receiverBankId] = (netPositions[tx.receiverBankId] || 0) + Number(tx.amount);
-        });
+            // Deduplicate
+            const seen = new Set();
+            const dedupedTxs = allTxs.filter(tx => {
+                const key = `${tx.senderIban}-${tx.receiverIban}-${tx.amount}-${tx.createdAt}`;
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
 
-        setSettlements({ transactions: allTxs, netSettlements: netPositions });
-        setShowSettlements(true);
-    } catch (error) {
-        console.error('Error fetching settlements:', error);
-    }
-};
+            // Recalculate net positions from all transactions
+            const netPositions = {};
+            dedupedTxs.forEach(tx => {
+                netPositions[tx.senderBankId] = (netPositions[tx.senderBankId] || 0) - Number(tx.amount);
+                netPositions[tx.receiverBankId] = (netPositions[tx.receiverBankId] || 0) + Number(tx.amount);
+            });
+
+            setSettlements({ transactions: dedupedTxs, netSettlements: netPositions });
+            setShowSettlements(true);
+        } catch (error) {
+            console.error('Error fetching settlements:', error);
+        }
+    };
 
 
     if (!isLoggedIn) {
