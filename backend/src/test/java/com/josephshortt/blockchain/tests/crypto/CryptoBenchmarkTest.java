@@ -6,14 +6,13 @@ import org.junit.jupiter.api.Test;
 
 import java.security.*;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 public class CryptoBenchmarkTest {
 
     private static final int ITERATIONS = 1000;
     private static final String TEST_DATA = "IE29BANKA00002IE29BANKB000031000.00bank-abank-b";
-
-
 
     @Test
     public void benchmarkECDSASigning() throws Exception {
@@ -173,5 +172,46 @@ public class CryptoBenchmarkTest {
             System.out.println("Verification avg:   " + verifyAvg / 1_000_000.0 + " ms");
             System.out.println();
         }
+    }
+
+    @Test
+    public void benchmarkSignatureSizes() throws Exception {
+        PQCService pqc = new PQCService();
+
+        DilithiumParameterSpec[] specs = {
+                DilithiumParameterSpec.dilithium2,
+                DilithiumParameterSpec.dilithium3,
+                DilithiumParameterSpec.dilithium5
+        };
+        String[] names = {"Dilithium2", "Dilithium3", "Dilithium5"};
+
+        for (int s = 0; s < specs.length; s++) {
+            KeyPair keys = pqc.generateDilithiumKeyPair(specs[s]);
+            String signature = pqc.signDilithium(TEST_DATA, keys.getPrivate());
+
+            byte[] sigBytes = Base64.getDecoder().decode(signature);
+            byte[] pubKeyBytes = keys.getPublic().getEncoded();
+            byte[] privKeyBytes = keys.getPrivate().getEncoded();
+
+            System.out.println("=== " + names[s] + " Key and Signature Sizes ===");
+            System.out.println("Public key size:  " + pubKeyBytes.length + " bytes");
+            System.out.println("Private key size: " + privKeyBytes.length + " bytes");
+            System.out.println("Signature size:   " + sigBytes.length + " bytes");
+            System.out.println();
+        }
+
+        // ECDSA comparison
+        KeyPairGenerator gen = KeyPairGenerator.getInstance("EC");
+        gen.initialize(256);
+        KeyPair ecKeys = gen.generateKeyPair();
+        Signature signer = Signature.getInstance("SHA256withECDSA");
+        signer.initSign(ecKeys.getPrivate());
+        signer.update(TEST_DATA.getBytes());
+        byte[] ecSig = signer.sign();
+
+        System.out.println("=== ECDSA P-256 Key and Signature Sizes ===");
+        System.out.println("Public key size:  " + ecKeys.getPublic().getEncoded().length + " bytes");
+        System.out.println("Private key size: " + ecKeys.getPrivate().getEncoded().length + " bytes");
+        System.out.println("Signature size:   " + ecSig.length + " bytes");
     }
 }
